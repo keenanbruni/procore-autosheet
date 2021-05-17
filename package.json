@@ -1,0 +1,21 @@
+{
+  "name": "procore-electron",
+  "version": "1.0.0",
+  "description": "AH!",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "KB",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^12.0.2",
+    "electron-reloader": "^1.2.1"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "electron-store": "^7.0.3",
+    "lodash": "^4.17.21"
+  }
+}

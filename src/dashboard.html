@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Procore AutoSheet</title>
+    <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+    <script>var exports = { "__esModule": true };</script>
+    <link rel="stylesheet" href="./bootstrap.css">
+    <link rel="stylesheet" href="./style.css">
+    <link href="./smart_wizard_all.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/smartwizard@5/dist/js/jquery.smartWizard.min.js" type="text/javascript"></script>
+    <script src="./underscore-observe.js"></script>
+    <script src="./dashboardFunctions.js"></script>
+    <script src="dashboard.js"></script>
+    <script>if (window.module) module = window.module;</script>
+</head>
+
+<body>
+    <div id="loading"></div>
+
+    <!--The main grid container for the app -->
+    <div class="grid-container">
+        <div class="site-header">
+            <h3>AutoSheet</h3>
+        </div>
+        <div class="sync-profile">
+            <a href="#" id="add-profile" class="fill-div" data-toggle="modal" data-target="#myModal">Add Sync
+                Profile</a>
+        </div>
+    </div>
+
+    <!--The modal dialog for creating sync profiles, populated by JS -->
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4 class="modal-title" style="text-align: center;">Add Sync Profile</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div id="smartwizard-starter">
+                        <ul class="nav">
+                            <li>
+                                <a class="nav-link" href="#step-1">
+                                    Step 1
+                                </a>
+                            </li>
+                            <li>
+                                <a class="nav-link" href="#step-2">
+                                    Step 2
+                                </a>
+                            </li>
+                            <li>
+                                <a class="nav-link" href="#step-3">
+                                    Step 3
+                                </a>
+                            </li>
+                            <li>
+                                <a class="nav-link" href="#step-4">
+                                    Step 4
+                                </a>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <div id="step-1" class="tab-pane" role="tabpanel">
+                                <small id="company-list-header">Select Company</small>
+                                <div class="list-group" id="company-list-group"></div>
+                                <small id='project-list-header' style="display:none">Select Project</small>
+                                <div class="list-group" id="project-list-group"></div>
+                            </div>
+                            <div id="step-2" class="tab-pane" role="tabpanel">
+                                <small id="drawing-area-header">Select Drawing Area</small>
+                                <div class="list-group" id="drawing-area-group"></div>
+                                <small id="drawing-discipline-header" style="display:none">Select Drawing Disciplines</small>
+                                <div class="list-group" id="drawing-discipline-group"></div>
+                            </div>
+                            <div id="step-3" class="tab-pane" role="tabpanel">
+                                Step content
+                            </div>
+                            <div id="step-4" class="tab-pane" role="tabpanel">
+                                Step content
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
