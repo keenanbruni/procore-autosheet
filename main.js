@@ -19,7 +19,7 @@ let authCodeData = {
   "refresh_token": refreshToken
 }
 
-// Main browser window
+// Main browser window 
 function createWindow() {
   const win = new BrowserWindow({
     width: 720,
@@ -44,11 +44,13 @@ function createWindow() {
       // Gets Auth & Redirect Token 
       axios.post('https://login-sandbox.procore.com/oauth/token', authCodeData)
         .then(function (response) {
-          refreshToken = response.data.refresh_token
+          authCodeData.refreshToken = response.data.refresh_token
           console.log(`ACCESS TOKEN: ${response.data.access_token}`);
           console.log(`REFRESH TOKEN: ${response.data.refresh_token}`)
           store.set('refresh-token', response.data.refresh_token)
           store.set('access-token', response.data.access_token)
+          store.set('client-id', authCodeData.client_id)
+          store.set('client-secret', authCodeData.client_secret)
         })
         .catch(function (error) {
           console.log(`AW CRAP! : ${error}`);
@@ -74,4 +76,20 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+// Messaging
+ipcMain.on('renew-lease', (e, arg) => {
+  axios.post('https://login-sandbox.procore.com/oauth/token', {
+    refresh_token: authCodeData.refresh_token,
+    client_id: authCodeData.client_id,
+    client_secret: authCodeData.client_secret,
+    grant_type: 'refresh_token'
+  }).then(function (response){
+    authCodeData.refreshToken = response.data.refresh_token
+    console.log(`UPDATED ACCESS TOKEN: ${response.data.access_token}`);
+    console.log(`UPDATED REFRESH TOKEN: ${response.data.refresh_token}`)
+    store.set('refresh-token', response.data.refresh_token)
+    store.set('access-token', response.data.access_token)
+  })
 })

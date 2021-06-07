@@ -1,3 +1,4 @@
+const { ipcRenderer } = require("electron")
 let selectedNodeList = []
 let companyList = {}
 
@@ -33,6 +34,12 @@ exports.renderProjectList = (company, accessToken) => {
                 // debugger
             })
         })
+        .fail(function (data) {
+            if (data){
+                console.log(`Failure Data: ${data}`)
+                exports.renewAuthLease()
+            }
+        })
     return projectData
 }
 
@@ -53,6 +60,12 @@ exports.renderDrawingAreas = (projectId, accessToken) => {
                 drawingAreaDiv.appendChild(listItem)
                 projectData.push(item)
             })
+        })
+        .fail(function (data) {
+            if (data){
+                console.log(`Failure Data: ${data}`)
+                exports.renewAuthLease()
+            }
         })
     return projectData
 }
@@ -75,6 +88,12 @@ exports.renderDrawingDisciplines = (projectId, accessToken) => {
                 diciplineListDiv.appendChild(listItem)
                 projectData.push(item)
             })
+        })
+        .fail(function (data) {
+            if (data){
+                console.log(`Failure Data: ${data}`)
+                exports.renewAuthLease()
+            }
         })
     return projectData
 }
@@ -283,4 +302,10 @@ exports.startMonitoring = () => {
         })
         console.log(`ID OF DELETED ITEM: ${old_item._id}`)
     })
+}
+
+// Renews authorization lease
+exports.renewAuthLease = () => {
+    // renew access token in electron-store, this may be the only step needed
+    ipcRenderer.send('renew-lease')
 }
