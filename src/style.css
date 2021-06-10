@@ -20,6 +20,12 @@ a.fill-div {
   left: 10%;
 }
 
+.file-location-link {
+  position: absolute;
+  bottom: 5%;
+  left: 40%;
+}
+
 #loading {
     background: url('./img/loading.gif') no-repeat center center;
     position: absolute;
@@ -45,6 +51,18 @@ a.fill-div {
   justify-items: center;
   padding: 10px;
 }
+
+.main-div {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  height: 300px;
+}
+
+/* .profile-header {
+  padding-bottom:10px
+} */
 
 .site-header {
   grid-column: span 1;

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 try {
   require('electron-reloader')(module)
 } catch (_) {}
@@ -18,6 +18,22 @@ let authCodeData = {
   "redirect_uri": "https://login-sandbox.procore.com/",
   "refresh_token": refreshToken
 }
+
+app.whenReady().then(() => {
+  createWindow()
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
+  })
+})
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})
 
 // Main browser window 
 function createWindow() {
@@ -58,38 +74,46 @@ function createWindow() {
 
       // Redirects to Dash
       win.loadFile('./src/dashboard.html')
+
+      // Logout redirect
+      ipcMain.on('logout', (e, arg) => {
+        win.loadFile('./src/login.html')
+      })
     }
   })
 }
 
-app.whenReady().then(() => {
-  createWindow()
-
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
-    }
-  })
-})
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
-
 // Messaging
 ipcMain.on('renew-lease', (e, arg) => {
   axios.post('https://login-sandbox.procore.com/oauth/token', {
-    refresh_token: authCodeData.refresh_token,
     client_id: authCodeData.client_id,
     client_secret: authCodeData.client_secret,
-    grant_type: 'refresh_token'
+    code: accessCode,
+    grant_type: "refresh_token",
+    redirect_uri: "urn:ietf:wg:oauth:2.0:oob",
+    refresh_token: refreshToken,
+
   }).then(function (response){
     authCodeData.refreshToken = response.data.refresh_token
-    console.log(`UPDATED ACCESS TOKEN: ${response.data.access_token}`);
-    console.log(`UPDATED REFRESH TOKEN: ${response.data.refresh_token}`)
+    console.log(`ACCESS TOKEN: ${response.data.access_token}`);
+    console.log(`REFRESH TOKEN: ${response.data.refresh_token}`)
     store.set('refresh-token', response.data.refresh_token)
     store.set('access-token', response.data.access_token)
+    store.set('client-id', authCodeData.client_id)
+    store.set('client-secret', authCodeData.client_secret)
   })
 })
+
+// Sets save location
+ipcMain.on('save-location', (e, arg) => {
+  dialog.showOpenDialog({ properties: ['openDirectory'] })
+    .then((result) => {
+      console.log(result.filePaths)
+    })
+})
+
+// Terminal Logger
+ipcMain.on('logger', (event, arg) => {
+  console.log(arg) // prints message
+})
+

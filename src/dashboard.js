@@ -37,6 +37,7 @@ $(() => {
                 exports.renewAuthLease()
             }
         })
+        
     // Add new sync profile
     $('#add-profile').click(() => {
         exports.addProfileHandler()
@@ -69,10 +70,18 @@ $(() => {
         $.get('https://login-sandbox.procore.com/oauth/token/info', {access_token: accessToken})
             .done(function(data){
                 console.log(data)
+                exports.logger(`TOKEN EXPIRES IN ${data.expires_in_seconds}MS`)
             })
     })
 
-
+    $('#logout-button').click(() => {
+        $.post('https://login-sandbox.procore.com/oauth/revoke',  { access_token: accessToken, client_id: clientId, client_secret: clientSecret })
+            .done(function(data) {
+                accessToken = ""
+                store.set('access-token', "")
+                ipcRenderer.send('logout')
+            })
+    })
 
     // Monitors storage for adds, deletes, and edits, and handles them
     exports.startMonitoring()

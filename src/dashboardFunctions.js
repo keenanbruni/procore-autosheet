@@ -246,10 +246,12 @@ exports.defineProfileComponent = () => {
             // HTML + Style Imports
             const profileDiv = document.createElement('div'); profileDiv.className = 'sync-profile'; profileDiv.innerHTML = '<link rel="stylesheet" href="./bootstrap.css"> <style> @import "./style.css"; </style>'
             const profileLink = document.createElement('a'); profileLink.setAttribute('id', "add-profile"); profileLink.setAttribute('class', 'fill-div'); profileLink.setAttribute('data-toggle', 'modal'); profileLink.setAttribute('data-target', '#myModal'); profileDiv.appendChild(profileLink)
-            const profileHeader = document.createElement('h5'); profileHeader.textContent = this.getAttribute('name'); profileLink.appendChild(profileHeader)
+            const profileHeader = document.createElement('h5'); profileHeader.textContent = this.getAttribute('name'); profileLink.appendChild(profileHeader); profileHeader.className = 'profile-header'
             const deleteLink = document.createElement('a'); deleteLink.innerHTML= '<small>delete</small>'; deleteLink.className = 'delete-link'; deleteLink.setAttribute('href','#')
+            const saveLocationLink = document.createElement('a'); saveLocationLink.innerHTML = '<small>save location</small>'; saveLocationLink.setAttribute('href','#'); saveLocationLink.className = 'save-location'
             $(deleteLink).click((e) => {exports.handleDeleteProfile(e, deleteLink.id)})
-            profileLink.appendChild(deleteLink)
+            $(saveLocationLink).click((e) => {exports.handleSaveLocation(e, saveLocationLink.id)})
+            profileLink.appendChild(deleteLink); profileLink.appendChild(saveLocationLink)
 
             // Append HTML to shadow root
             this.shadowRoot.append(profileDiv);
@@ -264,6 +266,7 @@ exports.defineProfileComponent = () => {
             if (name === 'id') {
                 const data = newValue
                 this.shadowRoot.querySelector('.delete-link').setAttribute('id', data)
+                this.shadowRoot.querySelector('.save-location').setAttribute('id', data)
             }
         }
     }
@@ -275,6 +278,12 @@ exports.defineProfileComponent = () => {
 exports.handleDeleteProfile = (e, id) => {
     const indexOfId = procoreData.findIndex(i => i._id === id)
     procoreData.splice(indexOfId, 1)
+}
+
+// Set file save location
+exports.handleSaveLocation = (e, id) => {
+    exports.logger(`ID OF SAVE LOCATION TO BE STORED: ${id}`)
+    ipcRenderer.send('save-location')
 }
 
 // Monitors storage for adds, deletes, and edits, and handles them
@@ -308,4 +317,9 @@ exports.startMonitoring = () => {
 exports.renewAuthLease = () => {
     // renew access token in electron-store, this may be the only step needed
     ipcRenderer.send('renew-lease')
+}
+
+// Logs to terminal
+exports.logger = (message) => {
+    ipcRenderer.send('logger', message) // prints message
 }
