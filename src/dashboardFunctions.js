@@ -98,6 +98,26 @@ exports.renderDrawingDisciplines = (projectId, accessToken) => {
     return projectData
 }
 
+// Stores list of drawings & download URLS in local storage
+exports.storeDrawingInfo = (id, accessToken) => {
+    const selectedProfileInfo = store.get('procoreData').find(x => x._id === id)
+    let procoreDataThang = procoreData.find(x => x._id === id)
+    const index = procoreData.findIndex(x => x._id === id)
+    const drawingAreaId = selectedProfileInfo.selectedDrawingArea.id
+    const projectId = selectedProfileInfo.selectedProject.id
+
+    exports.logger(`DRAWING AREA ID: ${drawingAreaId}, PROJECT ID: ${projectId}`)
+
+    $.get(`https://sandbox.procore.com/rest/v1.1/drawing_areas/${drawingAreaId}/drawings`, { drawing_area_id: drawingAreaId, access_token: accessToken, project_id: projectId }) 
+        .done(function (data){
+            if (data){
+                // need to save data to appropriate profile ID 
+                console.log(data)
+                procoreData[index].drawingData = data
+            }
+        })
+}
+
 // Keeps selected items selected for any given Bootstrap button list
 exports.toggleListSelection = (e) => {
     // Clears all existing active items
@@ -158,7 +178,8 @@ exports.addProfileHandler = () => {
         drawingAreaPromise: "",
         selectedDrawingArea: "",
         drawingDisciplinePromise: "",
-        selectedDrawingDiscipline: ""
+        selectedDrawingDiscipline: "",
+        drawingListPromise: ""
     }
     const asyncRenderProjectList = async () => {
         const response = await exports.renderProjectList(dataBucket.selectedCompany, accessToken)
@@ -249,9 +270,11 @@ exports.defineProfileComponent = () => {
             const profileHeader = document.createElement('h5'); profileHeader.textContent = this.getAttribute('name'); profileLink.appendChild(profileHeader); profileHeader.className = 'profile-header'
             const deleteLink = document.createElement('a'); deleteLink.innerHTML= '<small>delete</small>'; deleteLink.className = 'delete-link'; deleteLink.setAttribute('href','#')
             const saveLocationLink = document.createElement('a'); saveLocationLink.innerHTML = '<small>save location</small>'; saveLocationLink.setAttribute('href','#'); saveLocationLink.className = 'save-location'
+            const syncLink = document.createElement('a'); syncLink.innerHTML = '<small>sync</small>'; syncLink.setAttribute('href','#'); syncLink.className = 'sync-link'
             $(deleteLink).click((e) => {exports.handleDeleteProfile(e, deleteLink.id)})
-            $(saveLocationLink).click((e) => {exports.handleSaveLocation(e, saveLocationLink.id)})
-            profileLink.appendChild(deleteLink); profileLink.appendChild(saveLocationLink)
+            $(saveLocationLink).click((e) => {exports.handleSaveLocation(e, deleteLink.id)})
+            $(syncLink).click((e) => {exports.storeDrawingInfo(deleteLink.id, accessToken)})
+            profileLink.appendChild(deleteLink); profileLink.appendChild(saveLocationLink); profileLink.appendChild(syncLink)
 
             // Append HTML to shadow root
             this.shadowRoot.append(profileDiv);
@@ -266,7 +289,6 @@ exports.defineProfileComponent = () => {
             if (name === 'id') {
                 const data = newValue
                 this.shadowRoot.querySelector('.delete-link').setAttribute('id', data)
-                this.shadowRoot.querySelector('.save-location').setAttribute('id', data)
             }
         }
     }
@@ -286,9 +308,16 @@ exports.handleSaveLocation = (e, id) => {
     ipcRenderer.send('save-location')
 }
 
+// Download sequence
+// need to get a list of pdf drawing locations
+// for each drawing{ipcRenderer.send("download", {
+//     url: "URL is here",
+//     properties: {directory: "Directory is here"}
+// });}
+
 // Monitors storage for adds, deletes, and edits, and handles them
 exports.startMonitoring = () => {
-    
+
     // Monitors procoreData array for new profiles 
     _.observe(procoreData, 'create', function (new_item, item_index) {
         const component = document.createElement('simple-component')
@@ -311,6 +340,7 @@ exports.startMonitoring = () => {
         })
         console.log(`ID OF DELETED ITEM: ${old_item._id}`)
     })
+
 }
 
 // Renews authorization lease

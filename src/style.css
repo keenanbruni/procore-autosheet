@@ -26,6 +26,12 @@ a.fill-div {
   left: 40%;
 }
 
+.sync-link {
+  position: absolute;
+  bottom: 5%;
+  left: 80%;
+}
+
 #loading {
     background: url('./img/loading.gif') no-repeat center center;
     position: absolute;

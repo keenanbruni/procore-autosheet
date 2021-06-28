@@ -1,6 +1,6 @@
 // Initial declarations
 const Store = require('electron-store');
-const store = new Store({ watch: true });
+const store = new Store({ watch: true, accessPropertiesByDotNotation: false });
 let accessToken = store.get('access-token'); let clientId = store.get('client-id'); let clientSecret = store.get('client-secret')
 const hideLoader = () => {
     $('#loading').hide()
@@ -66,13 +66,15 @@ $(() => {
             })
     })
 
+    // Print token info
     $('#print-token-info').click(() => {
-        $.get('https://login-sandbox.procore.com/oauth/token/info', {access_token: accessToken})
-            .done(function(data){
+        $.get('https://login-sandbox.procore.com/oauth/token/info', { access_token: accessToken })
+            .done(function (data) {
                 console.log(data)
-                exports.logger(`TOKEN EXPIRES IN ${data.expires_in_seconds}MS`)
+                exports.logger(`TOKEN EXPIRES IN ${data.expires_in_seconds}sec`)
             })
     })
+
 
     $('#logout-button').click(() => {
         $.post('https://login-sandbox.procore.com/oauth/revoke',  { access_token: accessToken, client_id: clientId, client_secret: clientSecret })
