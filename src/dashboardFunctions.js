@@ -101,19 +101,18 @@ exports.renderDrawingDisciplines = (projectId, accessToken) => {
 // Stores list of drawings & download URLS in local storage
 exports.storeDrawingInfo = (id, accessToken) => {
     const selectedProfileInfo = store.get('procoreData').find(x => x._id === id)
-    let procoreDataThang = procoreData.find(x => x._id === id)
     const index = procoreData.findIndex(x => x._id === id)
     const drawingAreaId = selectedProfileInfo.selectedDrawingArea.id
     const projectId = selectedProfileInfo.selectedProject.id
+    const discipline = selectedProfileInfo.selectedDrawingDiscipline.name
 
     exports.logger(`DRAWING AREA ID: ${drawingAreaId}, PROJECT ID: ${projectId}`)
 
     $.get(`https://sandbox.procore.com/rest/v1.1/drawing_areas/${drawingAreaId}/drawings`, { drawing_area_id: drawingAreaId, access_token: accessToken, project_id: projectId }) 
         .done(function (data){
             if (data){
-                // need to save data to appropriate profile ID 
-                console.log(data)
-                procoreData[index].drawingData = data
+                const drawingBucket = data.filter(drawing => drawing.discipline === discipline)
+                procoreData[index].drawingData = drawingBucket
             }
         })
 }
@@ -183,7 +182,6 @@ exports.addProfileHandler = () => {
     }
     const asyncRenderProjectList = async () => {
         const response = await exports.renderProjectList(dataBucket.selectedCompany, accessToken)
-        // const filteredResponse = await exports.clearDuplicates(response)
         return response
     }
     const asyncRenderDrawingList = async () => {
@@ -326,7 +324,6 @@ exports.startMonitoring = () => {
 
         component.setAttribute('name', companyName)
         component.setAttribute('id', profileId)
-        // Needs to be ID specific
         $('.grid-container').append($(component));
     });
 
@@ -339,6 +336,12 @@ exports.startMonitoring = () => {
             }
         })
         console.log(`ID OF DELETED ITEM: ${old_item._id}`)
+    })
+
+    // Monitors procoreData array for updates, then commits to store
+    _.observe(procoreData, 'update', function(new_item, old_item, item_index){
+        exports.logger(`ahhh shit my boy be updatin procoreData`)
+        store.set('procoreData', procoreData)
     })
 
 }

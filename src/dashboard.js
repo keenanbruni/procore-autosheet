@@ -5,7 +5,7 @@ let accessToken = store.get('access-token'); let clientId = store.get('client-id
 const hideLoader = () => {
     $('#loading').hide()
 }
-let procoreData = []
+let procoreData = [] // critical component - container for all user data
 
 // Registers custom profile component
 exports.defineProfileComponent()
@@ -74,7 +74,6 @@ $(() => {
                 exports.logger(`TOKEN EXPIRES IN ${data.expires_in_seconds}sec`)
             })
     })
-
 
     $('#logout-button').click(() => {
         $.post('https://login-sandbox.procore.com/oauth/revoke',  { access_token: accessToken, client_id: clientId, client_secret: clientSecret })
