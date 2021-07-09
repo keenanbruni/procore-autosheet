@@ -3,6 +3,7 @@ try {
   require('electron-reloader')(module)
 } catch (_) {}
 const Store = require('electron-store')
+const {download} = require("electron-dl");
 const path = require('path')
 const axios = require('axios')
 
@@ -81,6 +82,21 @@ function createWindow() {
       })
     }
   })
+
+  // Handles electron-dl downloads
+  ipcMain.on("download", (event, info) => {
+    download(BrowserWindow.getFocusedWindow(), info.url, info.options)
+      .then(dl => win.webContents.send("download complete", dl.getSavePath()));
+  });
+
+  // Sets save location
+  ipcMain.on('save-location', (e, arg) => {
+    dialog.showOpenDialog({ properties: ['openDirectory'] })
+      .then((result) => {
+        win.webContents.send("saved-location", result.filePaths)
+      })
+  })
+
 }
 
 // Messaging
@@ -104,13 +120,7 @@ ipcMain.on('renew-lease', (e, arg) => {
   })
 })
 
-// Sets save location
-ipcMain.on('save-location', (e, arg) => {
-  dialog.showOpenDialog({ properties: ['openDirectory'] })
-    .then((result) => {
-      console.log(result.filePaths)
-    })
-})
+
 
 // Terminal Logger
 ipcMain.on('logger', (event, arg) => {

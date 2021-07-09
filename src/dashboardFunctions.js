@@ -99,22 +99,43 @@ exports.renderDrawingDisciplines = (projectId, accessToken) => {
 }
 
 // Stores list of drawings & download URLS in local storage
-exports.storeDrawingInfo = (id, accessToken) => {
-    const selectedProfileInfo = store.get('procoreData').find(x => x._id === id)
+const startDownload = (id, accessToken) => {
+    const selectedProfileInfo = procoreData.find(x => x._id === id)
     const index = procoreData.findIndex(x => x._id === id)
     const drawingAreaId = selectedProfileInfo.selectedDrawingArea.id
     const projectId = selectedProfileInfo.selectedProject.id
     const discipline = selectedProfileInfo.selectedDrawingDiscipline.name
-
-    exports.logger(`DRAWING AREA ID: ${drawingAreaId}, PROJECT ID: ${projectId}`)
 
     $.get(`https://sandbox.procore.com/rest/v1.1/drawing_areas/${drawingAreaId}/drawings`, { drawing_area_id: drawingAreaId, access_token: accessToken, project_id: projectId }) 
         .done(function (data){
             if (data){
                 const drawingBucket = data.filter(drawing => drawing.discipline === discipline)
                 procoreData[index].drawingData = drawingBucket
+
+                const drawingLoop = async() => {
+                    for (const drawing of drawingBucket) {
+                        const response = await downloadDrawing(drawing, selectedProfileInfo)
+                        console.log(response)
+                    }
+                }
+                drawingLoop()
             }
         })
+}
+
+// Downloads drawings
+const downloadDrawing = (drawing, profile) => {
+    return new Promise((resolve, reject) =>{
+        ipcRenderer.send("download", {
+            url: drawing.current_revision.pdf_url,
+            options: {directory: profile.saveLocation, filename: `${drawing.number} - ${drawing.title}.pdf`}    
+        })
+      
+        ipcRenderer.on("download complete", (event, arg) => {
+            resolve('download complete')
+        });
+
+    })
 }
 
 // Keeps selected items selected for any given Bootstrap button list
@@ -271,7 +292,7 @@ exports.defineProfileComponent = () => {
             const syncLink = document.createElement('a'); syncLink.innerHTML = '<small>sync</small>'; syncLink.setAttribute('href','#'); syncLink.className = 'sync-link'
             $(deleteLink).click((e) => {exports.handleDeleteProfile(e, deleteLink.id)})
             $(saveLocationLink).click((e) => {exports.handleSaveLocation(e, deleteLink.id)})
-            $(syncLink).click((e) => {exports.storeDrawingInfo(deleteLink.id, accessToken)})
+            $(syncLink).click((e) => {startDownload(deleteLink.id, accessToken)})
             profileLink.appendChild(deleteLink); profileLink.appendChild(saveLocationLink); profileLink.appendChild(syncLink)
 
             // Append HTML to shadow root
@@ -302,16 +323,15 @@ exports.handleDeleteProfile = (e, id) => {
 
 // Set file save location
 exports.handleSaveLocation = (e, id) => {
-    exports.logger(`ID OF SAVE LOCATION TO BE STORED: ${id}`)
     ipcRenderer.send('save-location')
-}
+    const index = procoreData.findIndex(x => x._id === id)
 
-// Download sequence
-// need to get a list of pdf drawing locations
-// for each drawing{ipcRenderer.send("download", {
-//     url: "URL is here",
-//     properties: {directory: "Directory is here"}
-// });}
+    // Upon received message with save location
+    ipcRenderer.on("saved-location", (event, arg) => {
+        console.log(arg[0]); // Full file path
+        procoreData[index].saveLocation = arg[0]
+    })
+}
 
 // Monitors storage for adds, deletes, and edits, and handles them
 exports.startMonitoring = () => {
