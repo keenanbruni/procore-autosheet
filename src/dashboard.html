@@ -8,9 +8,14 @@
     <link rel="stylesheet" href="./bootstrap.css">
     <link rel="stylesheet" href="./style.css">
     <link href="./smart_wizard_all.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/smartwizard@5/dist/js/jquery.smartWizard.min.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/smartwizard@5/dist/js/jquery.smartWizard.min.js"
+        type="text/javascript"></script>
     <script src="./underscore-observe.js"></script>
     <script src="./dashboardFunctions.js"></script>
     <script src="dashboard.js"></script>
@@ -24,17 +29,21 @@
     <div class="grid-container">
         <div class="site-header">
             <h3>AutoSheet</h3>
-            <a id="wrong-code" href="#">Wrong Code which forces refresh token</a>
         </div>
         <a id="print-token-info" href="#">Print Token Info</a>
         <a id="logout-button" href="#">Logout</a>
         <div class="sync-profile">
-            <a href="#" id="add-profile" class="fill-div" data-toggle="modal" data-target="#myModal">Add Sync Profile</a>
+            <a href="#" id="add-profile" class="fill-div" data-toggle="modal" data-target="#myModal">Add Sync
+                Profile</a>
+        </div>
+        <div class="sync-profile">
+            <a href="#" id="create-profile" class="fill-div" data-toggle="modal" data-target="#profileModal">Create Sync
+                Profile</a>
         </div>
     </div>
 
-    <!--The modal dialog for creating sync profiles, populated by JS -->
-    <div id="myModal" class="modal fade" role="dialog">
+    <!--The modal dialog for adding sync profiles, populated by JS -->
+    <div id="myModal" class="modal fade" role="document">
         <div class="modal-dialog">
             <div class="modal-content">
 
@@ -77,7 +86,8 @@
                             <div id="step-2" class="tab-pane" role="tabpanel">
                                 <small id="drawing-area-header">Select Drawing Area</small>
                                 <div class="list-group" id="drawing-area-group"></div>
-                                <small id="drawing-discipline-header" style="display:none">Select Drawing Disciplines</small>
+                                <small id="drawing-discipline-header" style="display:none">Select Drawing
+                                    Disciplines</small>
                                 <div class="list-group" id="drawing-discipline-group"></div>
                             </div>
                             <div id="step-3" class="tab-pane" role="tabpanel">
@@ -97,6 +107,46 @@
             </div>
         </div>
     </div>
+
+    <!--The modal dialog for creating sync profiles, populated by JS -->
+    <div id="profileModal" class="modal fade" role="document">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4 class="modal-title" style="text-align: center;">Drawing Profile</h4>
+                </div>
+
+                <div class="modal-body">
+                    <label for="company-selector" class="selector-div">
+                        <small>Select Company</small>
+                        <select id="company-selector" class="select-2" style="width: 80%" name="state"></select>
+                    </label>
+                    <br>
+                    <label for="project-selector" class="selector-div">
+                        <small>Select Project</small> 
+                        <br>
+                        <select id="project-selector" class="select-2" style="width: 80%" name="state"></select>
+                    </label>
+                    <br>
+                    <label for="drawing-area-selector" class="selector-div">
+                        <small>Select Drawing Area</small>
+                        <select id="drawing-area-selector" class="select-2" style="width: 80%" name="state"></select>
+                    </label>
+                    <label for="discipline-selector" class="selector-div">
+                        <small>Select Discipline</small>
+                        <select id="discipline-selector" class="select-2" style="width: 80%" name="state"></select>
+                    </label>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>

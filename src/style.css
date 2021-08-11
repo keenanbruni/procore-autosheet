@@ -66,9 +66,13 @@ a.fill-div {
   height: 300px;
 }
 
-/* .profile-header {
-  padding-bottom:10px
-} */
+.selector-div {
+  border-bottom: 1px solid rgba(131, 131, 131, 0.63);
+  padding: 20px;
+  padding-top: 10px;
+  margin-bottom: 0px;
+  width: -webkit-fill-available;
+}
 
 .site-header {
   grid-column: span 1;

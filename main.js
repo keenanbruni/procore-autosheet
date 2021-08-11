@@ -39,7 +39,7 @@ app.on('window-all-closed', () => {
 // Main browser window 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 720,
+    width: 820,
     height: 720,
     webPreferences: {
       nodeIntegration: true,

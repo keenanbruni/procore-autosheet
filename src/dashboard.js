@@ -27,6 +27,15 @@ $(() => {
                 exports.renderCompanyList(data)
                 exports.clearExistingNodeLists()
                 hideLoader()
+
+                // CREATE - Populate company selection dialog
+                const companySelect = $('#company-selector');
+                console.log(data)
+                data.forEach(item => {
+                    const option = new Option(item.name, item.id, true, true)
+                    companySelect.append(option).trigger('change')
+                })
+                
             } else {
                 console.log("An error occurred.");
             }
@@ -83,6 +92,35 @@ $(() => {
                 ipcRenderer.send('logout')
             })
     })
+
+     // "Create" new sync profile
+     $('#create-profile').click(() => {
+        exports.logger('Create Profile Clicked (placeholder)')
+    })
+
+    // Select2 Modality (can move to Functions later)
+    $('#company-selector').select2({
+        dropdownParent: $('#profileModal'),
+        placeholder: 'Select a company'
+    });
+    $('#project-selector').select2({
+        dropdownParent: $('#profileModal'),
+        placeholder: 'Select a project'
+    });
+    $('#drawing-area-selector').select2({
+        dropdownParent: $('#profileModal'),
+        placeholder: 'Select a project'
+    });
+    $('#discipline-selector').select2({
+        dropdownParent: $('#profileModal'),
+        placeholder: 'Select a project'
+    });
+
+    $('#company-selector').on('select2:select', function (e) {
+        var data = e.params.data;
+        console.log(data)
+    });
+
 
     // Monitors storage for adds, deletes, and edits, and handles them
     exports.startMonitoring()

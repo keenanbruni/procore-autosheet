@@ -285,7 +285,7 @@ exports.defineProfileComponent = () => {
 
             // HTML + Style Imports
             const profileDiv = document.createElement('div'); profileDiv.className = 'sync-profile'; profileDiv.innerHTML = '<link rel="stylesheet" href="./bootstrap.css"> <style> @import "./style.css"; </style>'
-            const profileLink = document.createElement('a'); profileLink.setAttribute('id', "add-profile"); profileLink.setAttribute('class', 'fill-div'); profileLink.setAttribute('data-toggle', 'modal'); profileLink.setAttribute('data-target', '#myModal'); profileDiv.appendChild(profileLink)
+            const profileLink = document.createElement('a'); profileLink.setAttribute('href', "#"); profileLink.setAttribute('id', "add-profile"); profileLink.setAttribute('class', 'fill-div'); profileLink.setAttribute('data-toggle', 'modal'); profileLink.setAttribute('data-target', '#myModal'); profileDiv.appendChild(profileLink)
             const profileHeader = document.createElement('h5'); profileHeader.textContent = this.getAttribute('name'); profileLink.appendChild(profileHeader); profileHeader.className = 'profile-header'
             const deleteLink = document.createElement('a'); deleteLink.innerHTML= '<small>delete</small>'; deleteLink.className = 'delete-link'; deleteLink.setAttribute('href','#')
             const saveLocationLink = document.createElement('a'); saveLocationLink.innerHTML = '<small>save location</small>'; saveLocationLink.setAttribute('href','#'); saveLocationLink.className = 'save-location'
@@ -293,6 +293,7 @@ exports.defineProfileComponent = () => {
             $(deleteLink).click((e) => {exports.handleDeleteProfile(e, deleteLink.id)})
             $(saveLocationLink).click((e) => {exports.handleSaveLocation(e, deleteLink.id)})
             $(syncLink).click((e) => {startDownload(deleteLink.id, accessToken)})
+            $(profileLink).click((e) => {$("#myModal").modal("show")})
             profileLink.appendChild(deleteLink); profileLink.appendChild(saveLocationLink); profileLink.appendChild(syncLink)
 
             // Append HTML to shadow root
