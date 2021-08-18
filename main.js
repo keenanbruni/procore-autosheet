@@ -39,7 +39,7 @@ app.on('window-all-closed', () => {
 // Main browser window 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 820,
+    width: 720,
     height: 720,
     webPreferences: {
       nodeIntegration: true,
@@ -47,8 +47,8 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js')
     }
   })
-
-  win.loadFile('./src/login.html')
+  win.setMenuBarVisibility(false)
+  win.loadFile('./login.html')
 
   // Intercepts redirect URI, extracts code, & sends to dashboard. 
   win.webContents.on('will-redirect', (e, url) => {
@@ -74,11 +74,16 @@ function createWindow() {
         });
 
       // Redirects to Dash
-      win.loadFile('./src/dashboard.html')
+      win.loadFile('./dashboard.html')
+      // Upsize window
+      let width = 1200;
+      let height = 800;
+      let animate = true;
+      win.setSize(width, height, animate);
 
       // Logout redirect
       ipcMain.on('logout', (e, arg) => {
-        win.loadFile('./src/login.html')
+        win.loadFile('./login.html')
       })
     }
   })
@@ -119,8 +124,6 @@ ipcMain.on('renew-lease', (e, arg) => {
     store.set('client-secret', authCodeData.client_secret)
   })
 })
-
-
 
 // Terminal Logger
 ipcMain.on('logger', (event, arg) => {
