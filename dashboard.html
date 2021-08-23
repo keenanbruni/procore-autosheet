@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
     <link rel="stylesheet" href="assets/css/iframe.css">
     <link rel="stylesheet" href="assets/css/Login-Form-Clean.css">
+    <link rel="stylesheet" href="assets/css/Select2-JS-Plugin.css">
     <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 
@@ -78,7 +79,7 @@
                                 </div>
                             </li>
                             <li class="nav-item dropdown no-arrow mx-1">
-                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-toggle="dropdown" href="#"><span class="badge badge-danger badge-counter">7</span><i class="fas fa-envelope fa-fw"></i></a>
+                                <div class="nav-item dropdown no-arrow"><a class="dropdown-toggle nav-link" aria-expanded="false" data-toggle="dropdown" href="#"></a>
                                     <div class="dropdown-menu dropdown-menu-right dropdown-list animated--grow-in">
                                         <h6 class="dropdown-header">alerts center</h6><a class="dropdown-item d-flex align-items-center" href="#">
                                             <div class="dropdown-list-image mr-3"><img class="rounded-circle" src="assets/img/avatars/avatar4.jpeg">
@@ -130,7 +131,7 @@
                 </nav>
                 <div class="container-fluid">
                     <div class="d-sm-flex justify-content-between align-items-center mb-4">
-                        <h3 class="text-dark mb-0">Dashboard</h3>
+                        <h3 class="text-dark mb-0">Dashboard</h3><button class="btn btn-primary" type="button" data-target="#drawings-modal" data-toggle="modal">Add Drawings</button>
                     </div>
                     <div class="row">
                         <div class="col-lg-12 col-xl-12 mb-4">
@@ -142,23 +143,23 @@
                                 <div class="list-group list-group-flush"><a class="list-group-item list-group-item-action">
                                         <div class="row align-items-center no-gutters">
                                             <div class="col mr-2">
-                                                <h6 class="mb-0"><strong>Puggo&nbsp;</strong>Hotel</h6><span class="text-xs">Architectural, Structural, Mechanical, Plumbing, Electrical</span>
+                                                <h6 class="mb-0"><strong>Puggo Hotel</strong></h6><span class="text-xs">Architectural, Structural, Civil, Mechanical</span>
                                             </div>
-                                            <div class="col-auto"><span class="badge badge-danger badge-counter"><i class="fas fa-bell fa-fw"></i>3+</span></div>
+                                            <div class="col-auto"><button class="btn btn-danger" type="button" style="transform: scale(0.61);">X</button></div>
                                         </div>
                                     </a><a class="list-group-item list-group-item-action">
                                         <div class="row align-items-center no-gutters">
                                             <div class="col mr-2">
                                                 <h6 class="mb-0"><strong>Mission Rock</strong></h6><span class="text-xs">Architectural, Structural, Civil, Mechanical</span>
                                             </div>
-                                            <div class="col-auto"><span class="badge badge-danger badge-counter"><i class="fas fa-bell fa-fw"></i>3+</span></div>
+                                            <div class="col-auto"><button class="btn btn-danger" type="button" style="transform: scale(0.61);">X</button></div>
                                         </div>
                                     </a><a class="list-group-item list-group-item-action">
                                         <div class="row align-items-center no-gutters">
                                             <div class="col mr-2">
-                                                <h6 class="mb-0"><strong>3303 Scottt</strong></h6><span class="text-xs">Architectural</span>
+                                                <h6 class="mb-0"><strong>3303 Scott</strong></h6><span class="text-xs">Architectural</span>
                                             </div>
-                                            <div class="col-auto"><span class="badge badge-danger badge-counter"><i class="fas fa-bell fa-fw"></i>3+</span></div>
+                                            <div class="col-auto"><button class="btn btn-danger" type="button" style="transform: scale(0.61);">X</button></div>
                                         </div>
                                     </a></div>
                             </div>
@@ -173,10 +174,117 @@
             </footer>
         </div><a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
     </div>
+    <div class="modal fade" role="dialog" tabindex="-1" id="drawings-modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add Drawings</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <section style="height: 25px;">
+                        <div class="container mt-5">
+                            <h6>Select Company</h6>
+                            <form>
+                                <div class="form-row">
+                                    <div class="col-xl-12">
+                                        <div class="form-group"><select class="form-control form-control-sm js-example-basic-single">
+                                                <option value="0" selected="">-- select --</option>
+                                                <option value="1">Tab FOL XT</option>
+                                                <option value="1">Tab ECOSPRIN 75 mg.</option>
+                                                <option value="1">Tab NORMOZ</option>
+                                                <option value="1">Tab SLIMFERT - IR 500mg.</option>
+                                                <option value="1">Cap FERTIHOPE - F</option>
+                                                <option value="1">Tab LETROZ 2.5 mg</option>
+                                                <option value="1">Tab DIVAGEST SR 300 mg.</option>
+                                                <option value="1">Tab DUPHASTON 10 mg.</option>
+                                                <option value="1">Tab OVARES - PLUS 75 MG.</option>
+                                            </select></div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+                    <section style="height: 25px;">
+                        <div class="container mt-5">
+                            <h6>Select Project</h6>
+                            <form>
+                                <div class="form-row">
+                                    <div class="col-xl-12">
+                                        <div class="form-group"><select class="form-control form-control-sm js-example-basic-single">
+                                                <option value="0" selected="">-- select --</option>
+                                                <option value="1">Tab FOL XT</option>
+                                                <option value="1">Tab ECOSPRIN 75 mg.</option>
+                                                <option value="1">Tab NORMOZ</option>
+                                                <option value="1">Tab SLIMFERT - IR 500mg.</option>
+                                                <option value="1">Cap FERTIHOPE - F</option>
+                                                <option value="1">Tab LETROZ 2.5 mg</option>
+                                                <option value="1">Tab DIVAGEST SR 300 mg.</option>
+                                                <option value="1">Tab DUPHASTON 10 mg.</option>
+                                                <option value="1">Tab OVARES - PLUS 75 MG.</option>
+                                            </select></div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+                    <section style="height: 25px;">
+                        <div class="container mt-5">
+                            <h6>Select Drawing Area</h6>
+                            <form>
+                                <div class="form-row">
+                                    <div class="col-xl-12">
+                                        <div class="form-group"><select class="form-control form-control-sm js-example-basic-single">
+                                                <option value="0" selected="">-- select --</option>
+                                                <option value="1">Tab FOL XT</option>
+                                                <option value="1">Tab ECOSPRIN 75 mg.</option>
+                                                <option value="1">Tab NORMOZ</option>
+                                                <option value="1">Tab SLIMFERT - IR 500mg.</option>
+                                                <option value="1">Cap FERTIHOPE - F</option>
+                                                <option value="1">Tab LETROZ 2.5 mg</option>
+                                                <option value="1">Tab DIVAGEST SR 300 mg.</option>
+                                                <option value="1">Tab DUPHASTON 10 mg.</option>
+                                                <option value="1">Tab OVARES - PLUS 75 MG.</option>
+                                            </select></div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+                    <section style="height: 25px;">
+                        <div class="container mt-5">
+                            <h6>Select Drawing Disciplines</h6>
+                            <form>
+                                <div class="form-row">
+                                    <div class="col-xl-12">
+                                        <div class="form-group"><select class="form-control form-control-sm js-example-basic-single">
+                                                <option value="0" selected="">-- select --</option>
+                                                <option value="1">Tab FOL XT</option>
+                                                <option value="1">Tab ECOSPRIN 75 mg.</option>
+                                                <option value="1">Tab NORMOZ</option>
+                                                <option value="1">Tab SLIMFERT - IR 500mg.</option>
+                                                <option value="1">Cap FERTIHOPE - F</option>
+                                                <option value="1">Tab LETROZ 2.5 mg</option>
+                                                <option value="1">Tab DIVAGEST SR 300 mg.</option>
+                                                <option value="1">Tab DUPHASTON 10 mg.</option>
+                                                <option value="1">Tab OVARES - PLUS 75 MG.</option>
+                                            </select></div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+                </div>
+                <div class="modal-footer"><button class="btn btn-light" type="button" data-dismiss="modal">Close</button><button class="btn btn-primary" type="button">Save</button></div>
+            </div>
+        </div>
+    </div>
     <div id="loading"></div>
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/bs-init.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="assets/js/Select2-JS-Plugin-1.js"></script>
+    <script src="assets/js/Select2-JS-Plugin.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
     <script src="assets/js/theme.js"></script>
 </body>
