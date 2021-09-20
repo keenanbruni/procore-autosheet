@@ -8,7 +8,7 @@ const hideLoader = () => {
 let procoreData = [] // critical component - container for all user data
 
 // Registers custom profile component
-exports.defineProfileComponent()
+// exports.defineProfileComponent()
 
 // App 
 $(() => {
@@ -19,8 +19,50 @@ $(() => {
     $.get(`https://sandbox.procore.com/rest/v1.0/companies`, { access_token: accessToken })
         .done(function (data) {
             if (data) {
+                let bucket = []
                 // Populate company selection Select2 interface
-                const companySelect = $('#company-selector')
+                console.log(data)
+                data.forEach(item => {
+                    let itemBucket = {}
+                    itemBucket.id = item.id
+                })
             }
         })
+
+        var data = [
+            {
+                id: 0,
+                text: 'enhancement'
+            },
+            {
+                id: 1,
+                text: 'bug'
+            },
+            {
+                id: 2,
+                text: 'duplicate'
+            },
+            {
+                id: 3,
+                text: 'invalid'
+            },
+            {
+                id: 4,
+                text: 'wontfix'
+            }
+        ];
+
+        $('#select-company').select2({
+            data: data
+        })
+
+        // $('#select-company').select2({
+        //     ajax: {
+        //         url: "https://sandbox.procore.com/rest/v1.0/companies",
+        //         dataType: 'json',
+        //         data: { access_token: accessToken }
+        //     },
+        //     return {  }
+            
+        // })
 })
