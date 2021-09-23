@@ -18,51 +18,19 @@ $(() => {
     // Initializes company info, hides loading gif
     $.get(`https://sandbox.procore.com/rest/v1.0/companies`, { access_token: accessToken })
         .done(function (data) {
+            let bucket = []
             if (data) {
-                let bucket = []
-                // Populate company selection Select2 interface
-                console.log(data)
+                // Populate company selection interface
                 data.forEach(item => {
-                    let itemBucket = {}
-                    itemBucket.id = item.id
+                    let object = {}
+                    object.id = item.id
+                    object.text = item.name
+                    bucket.push(object)
                 })
-            }
+
+                $("#select-company").select2({
+                    data: bucket
+                })
+            } 
         })
-
-        var data = [
-            {
-                id: 0,
-                text: 'enhancement'
-            },
-            {
-                id: 1,
-                text: 'bug'
-            },
-            {
-                id: 2,
-                text: 'duplicate'
-            },
-            {
-                id: 3,
-                text: 'invalid'
-            },
-            {
-                id: 4,
-                text: 'wontfix'
-            }
-        ];
-
-        $('#select-company').select2({
-            data: data
-        })
-
-        // $('#select-company').select2({
-        //     ajax: {
-        //         url: "https://sandbox.procore.com/rest/v1.0/companies",
-        //         dataType: 'json',
-        //         data: { access_token: accessToken }
-        //     },
-        //     return {  }
-            
-        // })
 })
