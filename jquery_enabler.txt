@@ -2,5 +2,6 @@
 <script>var exports = { "__esModule": true };</script>
 
 
-
+<script src="dashboardFunctions.js"></script>
+<script src="dashboard.js"></script>
 <script>if (window.module) module = window.module;</script>

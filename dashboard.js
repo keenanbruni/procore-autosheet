@@ -8,7 +8,7 @@ const hideLoader = () => {
 let procoreData = [] // critical component - container for all user data
 
 // Registers custom profile component
-exports.defineProfileComponent()
+// exports.defineProfileComponent()
 
 // App 
 $(() => {
@@ -18,9 +18,23 @@ $(() => {
     // Initializes company info, hides loading gif
     $.get(`https://sandbox.procore.com/rest/v1.0/companies`, { access_token: accessToken })
         .done(function (data) {
+            let bucket = []
             if (data) {
-                // Populate company selection Select2 interface
-                const companySelect = $('#company-selector')
-            }
+                // Populate company selection interface
+                data.forEach(item => {
+                    let object = {}
+                    object.id = item.id
+                    object.text = item.name
+                    bucket.push(object)
+                })
+
+                $("#select-company").select2({
+                    data: bucket
+                })
+                $('#select-company').on('select2:select', function(e){
+                    var data = e.params.data
+                    console.log(`ARRG THIS BE THE DATA: ${data.id + " " + data.text}`)
+                })
+            } 
         })
 })
