@@ -31,10 +31,11 @@ $(() => {
                 $("#select-company").select2({
                     data: bucket
                 })
-                $('#select-company').on('select2:select', function(e){
-                    var data = e.params.data
-                    console.log(`ARRG THIS BE THE DATA: ${data.id + " " + data.text}`)
-                })
             } 
+        })
+
+        // Add Profile Handler
+        $('#add-drawings').click(() => {
+            exports.addProfileHandler()
         })
 })
