@@ -157,7 +157,7 @@ exports.resetModal = () => {
     $("#select-company").val("1").trigger("change");
 }
 
-// UUID generator
+// UUID generato
 const uuidv4 = () => {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -168,6 +168,19 @@ const uuidv4 = () => {
 // Monitors storage for adds, deletes, and edits, and handles them
 exports.startObserve = () => {
     _.observe(procoreData, 'create', function(new_item, item_index){
-        console.log('ProcoreData Observe')
+        console.log(new_item)
+        const listLinkItem = document.createElement('a'); listLinkItem.classList = "list-group-item list-group-item-action"
+        const rowDiv = document.createElement('div'); rowDiv.classList = 'row align-items-center no-gutters' 
+        const colDiv = document.createElement('div'); colDiv.classList = 'col mr-2'
+        const h6 = document.createElement('h6'); h6.classList = 'mb-0'; h6.innerHTML = `<strong>${new_item.selectedCompany.name}</strong>`
+        const spanText = document.createElement('span'); spanText.classList = "text-xs"; spanText.innerText = `${new_item.selectedDrawingDiscipline.name}`
+        const colDiv2 = document.createElement('div'); colDiv2.classList = "col-auto"
+        const deleteButton = document.createElement('button'); deleteButton.classList = "close"; 
+        const closeSpan = document.createElement('span'); closeSpan.setAttribute("aria-hidden", "true"); closeSpan.innerText='x'
+
+        listLinkItem.appendChild(rowDiv); rowDiv.appendChild(colDiv); colDiv.appendChild(h6); colDiv.appendChild(spanText); 
+        rowDiv.appendChild(colDiv2); colDiv2.appendChild(deleteButton); deleteButton.appendChild(closeSpan)
+
+        $('#drawing-list').append(listLinkItem)
     })
 }
