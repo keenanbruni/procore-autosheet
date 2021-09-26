@@ -36,6 +36,7 @@ $(() => {
 
         // Add Profile Handler
         $('#add-drawings').click(() => {
+            exports.resetModal()
             exports.addProfileHandler()
         })
 })
