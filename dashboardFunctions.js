@@ -6,6 +6,7 @@ let companyList = {}
 //procoreData.push({ _id: exports.uuidv4(), selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline })
 //tore.set('procoreData', procoreData)
 
+// Handles add profile
 exports.addProfileHandler = () => {
     let dataBucket = {
         selectedCompany: "",
@@ -131,15 +132,42 @@ exports.addProfileHandler = () => {
             })
     }
 
-    // Step 4 - Saves selected drawing discipline to dataBucket
+    // Step 4 - Saves selected drawing discipline to dataBucket, enables save button
     $('#select-drawing-disciplines').on('select2:select', function (e) {
         let data = e.params.data
         dataBucket.selectedDrawingDiscipline = { id: data.id, name: data.text }
         console.log(dataBucket.selectedDrawingDiscipline)
+        $('#save-close-button').prop("disabled", false); $('#save-close-button').removeClass("disabled"); 
+    })
+
+    // Step 5 - Commits data upon close
+    $('#save-close-button').on('click', () => {
+        if (dataBucket.selectedDrawingDiscipline){
+            procoreData.push({ _id: uuidv4(), selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline })
+            store.set('procoreData', procoreData)
+        }
     })
 }
 
+// Resets add profile modal
 exports.resetModal = () => {
     $('#select-project').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
     $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true); 
+    $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
+    $("#select-company").val("1").trigger("change");
+}
+
+// UUID generator
+const uuidv4 = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
+// Monitors storage for adds, deletes, and edits, and handles them
+exports.startObserve = () => {
+    _.observe(procoreData, 'create', function(new_item, item_index){
+        console.log('ProcoreData Observe')
+    })
 }
