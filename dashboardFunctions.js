@@ -1,10 +1,4 @@
 const { ipcRenderer } = require("electron")
-let selectedNodeList = []
-let companyList = {}
-
-// The eventual push:
-//procoreData.push({ _id: exports.uuidv4(), selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline })
-//tore.set('procoreData', procoreData)
 
 // Handles add profile
 exports.addProfileHandler = () => {
@@ -16,7 +10,10 @@ exports.addProfileHandler = () => {
     }
 
     // Step 1 - Saves selected company to dataBucket & populates project select
-    $('#select-company').on('select2:select', function (e) {
+    $('#select-company').unbind("select2:select").on('select2:select', function (e) {
+        $('#select-project').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
+        $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true); 
+        $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
         const data = e.params.data
         dataBucket.selectedCompany = { id: data.id, name: data.text }
         if (dataBucket.selectedCompany) {
@@ -54,7 +51,10 @@ exports.addProfileHandler = () => {
     }
 
     // Step 2 - Saves selected project to dataBucket & populates drawing area select
-    $('#select-project').on('select2:select', function (e) {
+    $('#select-project').unbind("select2:select").on('select2:select', function (e) {
+        $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
+        $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true);
+        $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
         let data = e.params.data
         dataBucket.selectedProject = { id: data.id, name: data.text }
         console.log(dataBucket.selectedProject)
@@ -65,7 +65,6 @@ exports.addProfileHandler = () => {
     })
 
     const renderDrawingAreaList = (data, accessToken) => {
-        let projectData = []
         $("#loading-drawing-area-list").css("display", "inline");
         $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { access_token: accessToken, project_id: data.id })
             .done(function (data) {
@@ -94,7 +93,9 @@ exports.addProfileHandler = () => {
     }
 
     // Step 3 - Saves selected drawing area to dataBucket & populates drawing discipline select
-    $('#select-drawing-area').on('select2:select', function (e) {
+    $('#select-drawing-area').unbind("select2:select").on('select2:select', function (e) {
+        $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').prop("disabled", true);
+        $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
         let data = e.params.data
         dataBucket.selectedDrawingArea = { id: data.id, name: data.text }
         console.log(dataBucket.selectedDrawingArea)
@@ -104,7 +105,6 @@ exports.addProfileHandler = () => {
     })
 
     const renderDrawingDisciplineList = (data, accessToken) => {
-        let projectData = []
         $("#loading-drawing-discipline-list").css("display", "inline");
         $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { access_token: accessToken, project_id: data })
             .done(function (data) {
@@ -133,7 +133,7 @@ exports.addProfileHandler = () => {
     }
 
     // Step 4 - Saves selected drawing discipline to dataBucket, enables save button
-    $('#select-drawing-disciplines').on('select2:select', function (e) {
+    $('#select-drawing-disciplines').unbind("select2:select").on('select2:select', function (e) {
         let data = e.params.data
         dataBucket.selectedDrawingDiscipline = { id: data.id, name: data.text }
         console.log(dataBucket.selectedDrawingDiscipline)
@@ -141,7 +141,7 @@ exports.addProfileHandler = () => {
     })
 
     // Step 5 - Commits data upon close
-    $('#save-close-button').on('click', () => {
+    $('#save-close-button').unbind('click').on('click', () => {
         if (dataBucket.selectedDrawingDiscipline){
             procoreData.push({ _id: uuidv4(), selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline })
             store.set('procoreData', procoreData)
@@ -157,7 +157,13 @@ exports.resetModal = () => {
     $("#select-company").val("1").trigger("change");
 }
 
-// UUID generato
+const handleDeleteProfile = (e, id) => {
+    const indexOfId = procoreData.findIndex(i => i._id === id)
+    procoreData.splice(indexOfId, 1)
+}
+
+
+// UUID generator
 const uuidv4 = () => {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -167,20 +173,32 @@ const uuidv4 = () => {
 
 // Monitors storage for adds, deletes, and edits, and handles them
 exports.startObserve = () => {
+    // Monitors for new adds to procoreData
     _.observe(procoreData, 'create', function(new_item, item_index){
         console.log(new_item)
-        const listLinkItem = document.createElement('a'); listLinkItem.classList = "list-group-item list-group-item-action"
+        const listLinkItem = document.createElement('a'); listLinkItem.classList = "list-group-item list-group-item-action"; listLinkItem.setAttribute("id", new_item._id);
         const rowDiv = document.createElement('div'); rowDiv.classList = 'row align-items-center no-gutters' 
         const colDiv = document.createElement('div'); colDiv.classList = 'col mr-2'
         const h6 = document.createElement('h6'); h6.classList = 'mb-0'; h6.innerHTML = `<strong>${new_item.selectedCompany.name}</strong>`
         const spanText = document.createElement('span'); spanText.classList = "text-xs"; spanText.innerText = `${new_item.selectedDrawingDiscipline.name}`
         const colDiv2 = document.createElement('div'); colDiv2.classList = "col-auto"
-        const deleteButton = document.createElement('button'); deleteButton.classList = "close"; 
+        const deleteButton = document.createElement('button'); deleteButton.classList = "close"; deleteButton.setAttribute("id", new_item._id)
         const closeSpan = document.createElement('span'); closeSpan.setAttribute("aria-hidden", "true"); closeSpan.innerText='x'
 
         listLinkItem.appendChild(rowDiv); rowDiv.appendChild(colDiv); colDiv.appendChild(h6); colDiv.appendChild(spanText); 
         rowDiv.appendChild(colDiv2); colDiv2.appendChild(deleteButton); deleteButton.appendChild(closeSpan)
 
         $('#drawing-list').append(listLinkItem)
+    })
+
+     // Monitors procoreData array for deletes, then removes node and saves to store
+     _.observe(procoreData, 'delete', function (old_item, item_index) {
+        $('#drawing-list').contents().each((index, element) => {
+            if (element.id && element.id === old_item._id) {
+                $(element).remove()
+                store.set('procoreData', procoreData)
+            }
+        })
+        console.log(`ID OF DELETED ITEM: ${old_item._id}`)
     })
 }

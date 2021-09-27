@@ -101,7 +101,6 @@ function createWindow() {
         win.webContents.send("saved-location", result.filePaths)
       })
   })
-
 }
 
 // Messaging
