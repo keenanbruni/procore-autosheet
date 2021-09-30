@@ -166,15 +166,17 @@ const uuidv4 = () => {
 }
 
 // Deletes list item (don't worry, its being called)
-const deleteItem = (id) => {
+const deleteItem = (e, id) => {
+    e.stopPropagation()
     const indexOfId = procoreData.findIndex(i => i._id === id)
     procoreData.splice(indexOfId, 1)
 }
 
 // Prepopulates & opens modal upon item click
-const triggerModal = (id) => {
+const triggerModal = (e, id) => {
     const indexofId = procoreData.findIndex(i => i._id === id)
     console.log(indexofId)
+    console.log(`EVENT: ${e}`)
     
     
 }
@@ -184,13 +186,13 @@ exports.startObserve = () => {
     // Monitors for new adds to procoreData
     _.observe(procoreData, 'create', function(new_item, item_index){
         console.log(new_item)
-        const listLinkItem = document.createElement('a'); listLinkItem.classList = "list-group-item list-group-item-action"; listLinkItem.setAttribute("id", new_item._id); listLinkItem.setAttribute("onClick", 'triggerModal(this.id)');
+        const listLinkItem = document.createElement('a'); listLinkItem.classList = "list-group-item list-group-item-action"; listLinkItem.setAttribute("id", new_item._id); listLinkItem.setAttribute("onClick", 'triggerModal(event, this.id)');
         const rowDiv = document.createElement('div'); rowDiv.classList = 'row align-items-center no-gutters' 
         const colDiv = document.createElement('div'); colDiv.classList = 'col mr-2'
         const h6 = document.createElement('h6'); h6.classList = 'mb-0'; h6.innerHTML = `<strong>${new_item.selectedCompany.name}</strong>`
         const spanText = document.createElement('span'); spanText.classList = "text-xs"; spanText.innerText = `${new_item.selectedDrawingDiscipline.name}`
         const colDiv2 = document.createElement('div'); colDiv2.classList = "col-auto"
-        const deleteButton = document.createElement('button'); deleteButton.classList = "close"; deleteButton.setAttribute("id", new_item._id); deleteButton.setAttribute("onClick", 'deleteItem(this.id)');
+        const deleteButton = document.createElement('button'); deleteButton.classList = "close"; deleteButton.setAttribute("id", new_item._id); deleteButton.setAttribute("onClick", 'deleteItem(event, this.id)');
         const closeSpan = document.createElement('span'); closeSpan.setAttribute("aria-hidden", "true"); closeSpan.innerText='x'
 
         listLinkItem.appendChild(rowDiv); rowDiv.appendChild(colDiv); colDiv.appendChild(h6); colDiv.appendChild(spanText); 
