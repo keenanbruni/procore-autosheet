@@ -157,11 +157,33 @@ exports.resetModal = () => {
     $("#select-company").val("1").trigger("change");
 }
 
-const editProfile = (id) => {
+// Edit existing profile
+const editProfile = (selectionId) => {
     $('#modal-heading').text("Loading...")
     $('#modal-body-container').attr("style", "filter: blur(4px);")
     $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true); $('#select-company').prop("disabled", true)
     $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
+    
+    // Step 1 - Populate company selection
+    $.get(`https://sandbox.procore.com/rest/v1.0/companies`, { access_token: accessToken })
+        .done(function(data) {
+            let bucket = []
+            if (data) {
+                // Populate company selection interface
+                data.forEach(item => {
+                    let object = {}
+                    object.id = item.id
+                    object.text = item.name
+                    bucket.push(object)
+                })
+                const indexOfSelection = data.findIndex(i => i.id === selectionId)
+                console.log(`INDEX OF SELECTION: ${indexOfSelection}`)
+
+                $("#select-company").select2({
+                    data: bucket
+                })
+            } 
+        })
 }
 
 // UUID generator
