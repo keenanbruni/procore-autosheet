@@ -157,6 +157,13 @@ exports.resetModal = () => {
     $("#select-company").val("1").trigger("change");
 }
 
+const editProfile = (id) => {
+    $('#modal-heading').text("Loading...")
+    $('#modal-body-container').attr("style", "filter: blur(4px);")
+    $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true); $('#select-company').prop("disabled", true)
+    $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
+}
+
 // UUID generator
 const uuidv4 = () => {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -177,8 +184,8 @@ const triggerModal = (e, id) => {
     const indexofId = procoreData.findIndex(i => i._id === id)
     console.log(indexofId)
     console.log(`EVENT: ${e}`)
-    
-    
+    $('#drawings-modal').modal();
+    editProfile(id)
 }
 
 // Monitors storage for adds, deletes, and edits, and handles them

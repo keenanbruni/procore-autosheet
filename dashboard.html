@@ -164,10 +164,10 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Add Drawings</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    <h4 class="modal-title" id="modal-heading">Add Drawings</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                 </div>
                 <div class="modal-body" style="box-shadow: 0px 0px;opacity: 1;">
-                    <div class="container">
+                    <div class="container" id="modal-body-container">
                         <div class="row">
                             <div class="col">
                                 <div id="select-company-div" style="padding-bottom: 10px;">
@@ -201,14 +201,13 @@
     <div id="loading"></div>
     <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
     <script>var exports = { "__esModule": true };</script>
-    
         <script src="assets/js/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
+        <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
         <script src="assets/bootstrap/js/bootstrap.min.js"></script>
         <script src="assets/js/bs-init.js"></script>
-        <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
         <script src="assets/js/Select2-JS-Plugin.js"></script>
         <script src="assets/js/Select2-JS-Plugin-1.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
         <script src="assets/js/theme.js"></script>
     <script src = "underscore-observe.js"></script>
     <script src="dashboardFunctions.js"></script>
