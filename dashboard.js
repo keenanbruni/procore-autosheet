@@ -43,4 +43,9 @@ $(() => {
 
         // Enables lodash observe
         exports.startObserve()
+
+        // Populates existing profiles
+        store.get('procoreData').forEach(profile => {
+            procoreData.push(profile)
+        })
 })
