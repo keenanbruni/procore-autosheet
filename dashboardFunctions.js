@@ -1,5 +1,6 @@
 const { ipcRenderer } = require("electron");
 const { data } = require("jquery");
+const { access } = require("original-fs");
 
 // Handles add profile
 exports.addProfileHandler = () => {
@@ -161,7 +162,9 @@ exports.resetModal = () => {
 // Edit existing profile
 const editProfile = (selectionId) => {
     // Data imports & function definitions
-    const indexOfId = procoreData.findIndex(i => i._id === selectionId); const selectedData = procoreData[indexOfId];console.log(selectedData)
+    const indexOfId = procoreData.findIndex(i => i._id === selectionId)
+    const selectedData = procoreData[indexOfId]
+
     const renderProjectList = (company, accessToken) => {
         $("#loading-project-list").css("display", "inline");
         $.get("https://sandbox.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
@@ -180,8 +183,75 @@ const editProfile = (selectionId) => {
                 $("#select-project").select2({
                     data: bucket
                 })
+                $("#select-project").select2("trigger", "select", {
+                    data: { id: selectedData.selectedProject.id }
+                });
                 $('#select-project').prop("disabled", false)
                 $("#loading-project-list").css("display", "none");
+
+                renderDrawingArea(selectedData.selectedProject, accessToken)
+            })
+            .fail(function (data) {
+                if (data) {
+                    console.log(`Failure Data: ${data}`)
+                }
+            })
+    }
+    const renderDrawingArea = (data, accessToken) => {
+        $("#loading-drawing-area-list").css("display", "inline");
+        $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { access_token: accessToken, project_id: data.id })
+            .done(function (data) {
+                let bucket = []
+                if (data) {
+                    // Populate select
+                    data.forEach(item => {
+                        let object = {}
+                        object.id = item.id
+                        object.text = item.name
+                        bucket.push(object)
+                    })
+                }
+                $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] });
+                $("#select-drawing-area").select2({
+                    data: bucket
+                })
+                $("#select-drawing-area").select2("trigger", "select", {
+                    data: { id: selectedData.selectedDrawingArea.id }
+                });
+                $('#select-drawing-area').prop("disabled", false)
+                $("#loading-drawing-area-list").css("display", "none");
+
+                renderDisciplines(selectedData.selectedProject.id, accessToken)
+            })
+            .fail(function (data) {
+                if (data) {
+                    console.log(`Failure Data: ${data}`)
+                }
+            })
+    }
+    const renderDisciplines = (data, accessToken) => {
+        $("#loading-drawing-discipline-list").css("display", "inline");
+        $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { access_token: accessToken, project_id: data })
+            .done(function (data) {
+                let bucket = []
+                if (data) {
+                    // Populate select
+                    data.forEach(item => {
+                        let object = {}
+                        object.id = item.id
+                        object.text = item.name
+                        bucket.push(object)
+                    })
+                }
+                $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
+                $("#select-drawing-disciplines").select2({
+                    data: bucket
+                })
+                $("#select-drawing-disciplines").select2("trigger", "select", {
+                    data: { id: selectedData.selectedDrawingDiscipline.id }
+                });
+                $('#select-drawing-disciplines').prop("disabled", false)
+                $("#loading-drawing-discipline-list").css("display", "none");
             })
             .fail(function (data) {
                 if (data) {
@@ -190,6 +260,7 @@ const editProfile = (selectionId) => {
             })
     }
 
+    // Initial styling
     $('#modal-heading').text("Loading...")
     // $('#modal-body-container').attr("style", "filter: blur(4px);")
     $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true); $('#select-company').prop("disabled", true)
@@ -197,7 +268,7 @@ const editProfile = (selectionId) => {
 
     // AJAX Functions
     
-    // Step 1 - Populate company selection
+    // Trigger population chain
     $.get(`https://sandbox.procore.com/rest/v1.0/companies`, { access_token: accessToken })
         .done(function(data) {
             let bucket = []
@@ -216,6 +287,9 @@ const editProfile = (selectionId) => {
                 $("#select-company").select2({
                     data: bucket
                 })
+                $("#select-company").select2("trigger", "select", {
+                    data: { id: selectedData.selectedCompany.id }
+                });
                 $('#select-company').prop("disabled", false)
 
                 // Populates project list based on selected company
