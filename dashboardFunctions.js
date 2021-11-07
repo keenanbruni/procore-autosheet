@@ -1,4 +1,5 @@
-const { ipcRenderer } = require("electron")
+const { ipcRenderer } = require("electron");
+const { data } = require("jquery");
 
 // Handles add profile
 exports.addProfileHandler = () => {
@@ -159,10 +160,42 @@ exports.resetModal = () => {
 
 // Edit existing profile
 const editProfile = (selectionId) => {
+    // Data imports & function definitions
+    const indexOfId = procoreData.findIndex(i => i._id === selectionId); const selectedData = procoreData[indexOfId];console.log(selectedData)
+    const renderProjectList = (company, accessToken) => {
+        $("#loading-project-list").css("display", "inline");
+        $.get("https://sandbox.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
+            .done(function (data) {
+                let bucket = []
+                if (data) {
+                    // Populate project select
+                    data.forEach(item => {
+                        let object = {}
+                        object.id = item.id
+                        object.text = item.name
+                        bucket.push(object)
+                    })
+                }
+                $('#select-project').html('').select2({ data: [{ id: '', text: '' }] });
+                $("#select-project").select2({
+                    data: bucket
+                })
+                $('#select-project').prop("disabled", false)
+                $("#loading-project-list").css("display", "none");
+            })
+            .fail(function (data) {
+                if (data) {
+                    console.log(`Failure Data: ${data}`)
+                }
+            })
+    }
+
     $('#modal-heading').text("Loading...")
-    $('#modal-body-container').attr("style", "filter: blur(4px);")
+    // $('#modal-body-container').attr("style", "filter: blur(4px);")
     $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true); $('#select-company').prop("disabled", true)
     $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
+
+    // AJAX Functions
     
     // Step 1 - Populate company selection
     $.get(`https://sandbox.procore.com/rest/v1.0/companies`, { access_token: accessToken })
@@ -176,14 +209,20 @@ const editProfile = (selectionId) => {
                     object.text = item.name
                     bucket.push(object)
                 })
-                const indexOfSelection = data.findIndex(i => i.id === selectionId)
-                console.log(`INDEX OF SELECTION: ${indexOfSelection}`)
+
+                // const indexOfSelection = bucket.findIndex(i => i.id == selectedData.selectedCompany.id)
+                // console.log(`INDEX OF SELECTION: ${indexOfSelection}`)
 
                 $("#select-company").select2({
                     data: bucket
                 })
+                $('#select-company').prop("disabled", false)
+
+                // Populates project list based on selected company
+                renderProjectList(selectedData.selectedCompany,accessToken)
             } 
         })
+
 }
 
 // UUID generator
@@ -204,8 +243,7 @@ const deleteItem = (e, id) => {
 // Prepopulates & opens modal upon item click
 const triggerModal = (e, id) => {
     const indexofId = procoreData.findIndex(i => i._id === id)
-    console.log(indexofId)
-    console.log(`EVENT: ${e}`)
+    console.log(`Index of ID: ${indexofId}`)
     $('#drawings-modal').modal();
     editProfile(id)
 }
