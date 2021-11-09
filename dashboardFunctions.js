@@ -164,7 +164,9 @@ const editProfile = (selectionId) => {
     // Data imports & function definitions
     const indexOfId = procoreData.findIndex(i => i._id === selectionId)
     const selectedData = procoreData[indexOfId]
+    let dataBucket = {}
 
+    // Initial render of prepopulated
     const renderProjectList = (company, accessToken) => {
         $("#loading-project-list").css("display", "inline");
         $.get("https://sandbox.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
@@ -260,13 +262,151 @@ const editProfile = (selectionId) => {
             })
     }
 
+    // Edit handlers
+    const editRenderProjectList = (company, accessToken) => {
+        $("#loading-project-list").css("display", "inline");
+        $.get("https://sandbox.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
+            .done(function (data) {
+                let bucket = []
+                if (data) {
+                    // Populate project select
+                    data.forEach(item => {
+                        let object = {}
+                        object.id = item.id
+                        object.text = item.name
+                        bucket.push(object)
+                    })
+                }
+                $('#select-project').html('').select2({ data: [{ id: '', text: '' }] });
+                $("#select-project").select2({
+                    data: bucket
+                })
+                $('#select-project').prop("disabled", false)
+                $("#loading-project-list").css("display", "none");
+            })
+            .fail(function (data) {
+                if (data) {
+                    console.log(`Failure Data: ${data}`)
+                }
+            })
+    }
+    const editRenderDrawingAreaList = (data, accessToken) => {
+        $("#loading-drawing-area-list").css("display", "inline");
+        $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { access_token: accessToken, project_id: data.id })
+            .done(function (data) {
+                let bucket = []
+                if (data) {
+                    // Populate select
+                    data.forEach(item => {
+                        let object = {}
+                        object.id = item.id
+                        object.text = item.name
+                        bucket.push(object)
+                    })
+                }
+                $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] });
+                $("#select-drawing-area").select2({
+                    data: bucket
+                })
+                $('#select-drawing-area').prop("disabled", false)
+                $("#loading-drawing-area-list").css("display", "none");
+            })
+            .fail(function (data) {
+                if (data) {
+                    console.log(`Failure Data: ${data}`)
+                }
+            })
+    }
+    const editRenderDrawingDisciplineList = (data, accessToken) => {
+        $("#loading-drawing-discipline-list").css("display", "inline");
+        $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { access_token: accessToken, project_id: data })
+            .done(function (data) {
+                let bucket = []
+                if (data) {
+                    // Populate select
+                    data.forEach(item => {
+                        let object = {}
+                        object.id = item.id
+                        object.text = item.name
+                        bucket.push(object)
+                    })
+                }
+                $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
+                $("#select-drawing-disciplines").select2({
+                    data: bucket
+                })
+                $('#select-drawing-disciplines').prop("disabled", false)
+                $("#loading-drawing-discipline-list").css("display", "none");
+            })
+            .fail(function (data) {
+                if (data) {
+                    console.log(`Failure Data: ${data}`)
+                }
+            })
+    }
+
+    // Step 1 - Saves edited company to dataBucket & populates project select
+    $('#select-company').unbind("select2:select").on('select2:select', function (e) {
+        $('#select-project').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
+        $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true);
+        $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
+        const data = e.params.data
+        dataBucket.selectedCompany = { id: data.id, name: data.text }
+        if (dataBucket.selectedCompany) {
+            editRenderProjectList(data, accessToken)
+        }
+        console.log(dataBucket.selectedCompany)
+    })
+
+    // Step 2 - Saves edited project to dataBucket & populates drawing area select
+    $('#select-project').unbind("select2:select").on('select2:select', function (e) {
+        $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
+        $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true);
+        $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
+        let data = e.params.data
+        dataBucket.selectedProject = { id: data.id, name: data.text }
+        console.log(dataBucket.selectedProject)
+        if (dataBucket.selectedProject) {
+            editRenderDrawingAreaList(data, accessToken)
+        }
+    })
+
+    // Step 3 - Saves edited drawing area to dataBucket & populates drawing discipline select
+    $('#select-drawing-area').unbind("select2:select").on('select2:select', function (e) {
+        $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').prop("disabled", true);
+        $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
+        let data = e.params.data
+        dataBucket.selectedDrawingArea = { id: data.id, name: data.text }
+        console.log(dataBucket.selectedDrawingArea)
+        if (dataBucket.selectedDrawingArea) {
+            editRenderDrawingDisciplineList(selectedData.selectedProject.id, accessToken)
+        }
+    })
+
+    // Step 4 - Saves edited drawing discipline to dataBucket, enables save button
+    $('#select-drawing-disciplines').unbind("select2:select").on('select2:select', function (e) {
+        let data = e.params.data
+        dataBucket.selectedDrawingDiscipline = { id: data.id, name: data.text }
+        console.log(dataBucket.selectedDrawingDiscipline)
+        $('#save-close-button').prop("disabled", false); $('#save-close-button').removeClass("disabled");
+    })
+
+    // Step 5 - Commits edited data upon close
+    $('#save-close-button').unbind('click').on('click', () => {
+        if (dataBucket.selectedDrawingDiscipline) {
+            const indexOfId = procoreData.findIndex(i => i._id === selectionId)
+            console.log(indexOfId)
+            procoreData[indexOfId] = { _id: selectionId, selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline }
+            // procoreData.push({ _id: uuidv4(), selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline })
+            store.set('procoreData', procoreData)
+        }
+    })
+
     // Initial styling
     $('#modal-heading').text("Loading...")
     // $('#modal-body-container').attr("style", "filter: blur(4px);")
     $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true); $('#select-company').prop("disabled", true)
     $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
-
-    // AJAX Functions
     
     // Trigger population chain
     $.get(`https://sandbox.procore.com/rest/v1.0/companies`, { access_token: accessToken })
@@ -296,7 +436,6 @@ const editProfile = (selectionId) => {
                 renderProjectList(selectedData.selectedCompany,accessToken)
             } 
         })
-
 }
 
 // UUID generator
@@ -326,7 +465,6 @@ const triggerModal = (e, id) => {
 exports.startObserve = () => {
     // Monitors for new adds to procoreData
     _.observe(procoreData, 'create', function(new_item, item_index){
-        console.log(new_item)
         const listLinkItem = document.createElement('a'); listLinkItem.classList = "list-group-item list-group-item-action"; listLinkItem.setAttribute("id", new_item._id); listLinkItem.setAttribute("onClick", 'triggerModal(event, this.id)');
         const rowDiv = document.createElement('div'); rowDiv.classList = 'row align-items-center no-gutters' 
         const colDiv = document.createElement('div'); colDiv.classList = 'col mr-2'
@@ -351,5 +489,10 @@ exports.startObserve = () => {
             }
         })
         console.log(`ID OF DELETED ITEM: ${old_item._id}`)
+    })
+
+    // Monitors procoreData array for edits
+    _.observe(procoreData, 'update', function (new_item, old_item, item_index){
+        console.log(`Arrividerci! ${new_item}`)
     })
 }
