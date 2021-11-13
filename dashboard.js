@@ -1,7 +1,7 @@
 // Initial declarations
 const Store = require('electron-store');
 const store = new Store({ watch: true, accessPropertiesByDotNotation: false });
-let accessToken = store.get('access-token'); let clientId = store.get('client-id'); let clientSecret = store.get('client-secret')
+let accessToken = store.get('access-token'); 
 const hideLoader = () => {
     $('#loading').hide()
 }
