@@ -1,6 +1,5 @@
 const { ipcRenderer } = require("electron");
-const { data } = require("jquery");
-const { access } = require("original-fs");
+const { download } = require("electron-dl");
 
 // Handles add profile
 exports.addProfileHandler = () => {
@@ -337,6 +336,7 @@ const editProfile = (selectionId) => {
                 })
                 $('#select-drawing-disciplines').prop("disabled", false)
                 $("#loading-drawing-discipline-list").css("display", "none");
+                $('#modal-heading').text('Edit Drawing Profile'); $('#modal-body-container').attr("style", "filter: blur(0px);")
             })
             .fail(function (data) {
                 if (data) {
@@ -395,7 +395,6 @@ const editProfile = (selectionId) => {
     $('#save-close-button').unbind('click').on('click', () => {
         if (dataBucket.selectedDrawingDiscipline) {
             const indexOfId = procoreData.findIndex(i => i._id === selectionId)
-            console.log(indexOfId)
             procoreData[indexOfId] = { _id: selectionId, selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline }
             // procoreData.push({ _id: uuidv4(), selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline })
             store.set('procoreData', procoreData)
@@ -404,7 +403,7 @@ const editProfile = (selectionId) => {
 
     // Initial styling
     $('#modal-heading').text("Loading...")
-    // $('#modal-body-container').attr("style", "filter: blur(4px);")
+    $('#modal-body-container').attr("style", "filter: blur(4px);")
     $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true); $('#select-company').prop("disabled", true)
     $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
     
@@ -453,7 +452,12 @@ const deleteItem = (e, id) => {
     procoreData.splice(indexOfId, 1)
 }
 
-// Prepopulates & opens modal upon item click
+// Triggers download sequence (don't worry, its being called)
+const downloadDrawings = (e, id) => {
+    e.stopPropagation()
+}
+
+// Prepopulates & opens modal upon item click (don't worry, its being called)
 const triggerModal = (e, id) => {
     const indexofId = procoreData.findIndex(i => i._id === id)
     console.log(`Index of ID: ${indexofId}`)
@@ -471,10 +475,13 @@ exports.startObserve = () => {
         const h6 = document.createElement('h6'); h6.classList = 'mb-0'; h6.innerHTML = `<strong>${new_item.selectedCompany.name}</strong>`
         const spanText = document.createElement('span'); spanText.classList = "text-xs"; spanText.innerText = `${new_item.selectedDrawingDiscipline.name}`
         const colDiv2 = document.createElement('div'); colDiv2.classList = "col-auto"
+        const downloadButton = document.createElement('button'); downloadButton.classList = "btn btn-primary"; $(downloadButton).css("background", "url(\"assets/img/avatars/download-2-128.png\") center / 15px no-repeat"); $(downloadButton).css("height", "22px"); $(downloadButton).css("border-style", "none"); downloadButton.setAttribute("onClick", 'downloadDrawings(event, this.id)');
+        const colDiv3 = document.createElement('div'); colDiv3.classList = "col-xl-1 text-right"; $(colDiv3).css("padding-right", "15px")
         const deleteButton = document.createElement('button'); deleteButton.classList = "close"; deleteButton.setAttribute("id", new_item._id); deleteButton.setAttribute("onClick", 'deleteItem(event, this.id)');
         const closeSpan = document.createElement('span'); closeSpan.setAttribute("aria-hidden", "true"); closeSpan.innerText='x'
 
         listLinkItem.appendChild(rowDiv); rowDiv.appendChild(colDiv); colDiv.appendChild(h6); colDiv.appendChild(spanText); 
+        rowDiv.appendChild(colDiv3); colDiv3.appendChild(downloadButton)
         rowDiv.appendChild(colDiv2); colDiv2.appendChild(deleteButton); deleteButton.appendChild(closeSpan)
 
         $('#drawing-list').append(listLinkItem)
@@ -491,8 +498,13 @@ exports.startObserve = () => {
         console.log(`ID OF DELETED ITEM: ${old_item._id}`)
     })
 
-    // Monitors procoreData array for edits
+    // Monitors procoreData array for changes and makes updates
     _.observe(procoreData, 'update', function (new_item, old_item, item_index){
-        console.log(`Arrividerci! ${new_item}`)
+        $('#drawing-list').children().each(function (){
+            if ($(this).attr("id") === new_item._id){
+                $(this).find('h6').html(`<stong>${new_item.selectedCompany.name}</strong>`); $(this).find('h6').css("font-weight",`bold`)
+                $(this).find('.text-xs').text(`${new_item.selectedDrawingDiscipline.name}`)
+            }
+        })
     })
 }
