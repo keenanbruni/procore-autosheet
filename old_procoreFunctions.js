@@ -134,7 +134,6 @@ const downloadDrawing = (drawing, profile) => {
         ipcRenderer.on("download complete", (event, arg) => {
             resolve('download complete')
         });
-
     })
 }
 

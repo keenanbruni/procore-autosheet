@@ -452,9 +452,62 @@ const deleteItem = (e, id) => {
     procoreData.splice(indexOfId, 1)
 }
 
-// Triggers download sequence (don't worry, its being called)
-const downloadDrawings = (e, id) => {
+// Stores list of drawings & download URLS in local storage (don't worry, its being called)
+const downloadDrawings = (e, id, accessToken) => {
     e.stopPropagation()
+    const selectedProfileInfo = procoreData.find(x => x._id === id)
+    const index = procoreData.findIndex(x => x._id === id)
+    const drawingAreaId = selectedProfileInfo.selectedDrawingArea.id
+    const projectId = selectedProfileInfo.selectedProject.id
+    const discipline = selectedProfileInfo.selectedDrawingDiscipline.name
+
+    const proceedDownload = () => {
+        $.get(`https://sandbox.procore.com/rest/v1.1/drawing_areas/${drawingAreaId}/drawings`, { drawing_area_id: drawingAreaId, access_token: accessToken, project_id: projectId })
+            .done(function (data) {
+                if (data) {
+                    const drawingBucket = data.filter(drawing => drawing.discipline === discipline)
+                    procoreData[index].drawingData = drawingBucket
+
+                    const drawingLoop = async () => {
+                        for (const drawing of drawingBucket) {
+                            const response = await downloadDrawing(drawing, selectedProfileInfo)
+                            console.log(response)
+                        }
+                    }
+                    drawingLoop()
+                }
+            })
+    }
+
+    // Checks to see if save location is set prior to download (kinda janky, doesn't give the option to set a new save location. Should specify save location in the modal)
+    if (selectedProfileInfo.saveLocation){
+        proceedDownload()
+    } else {
+        ipcRenderer.send('save-location')
+        const index = procoreData.findIndex(x => x._id === id)
+
+        // Upon received message with save location
+        ipcRenderer.on("saved-location", (event, arg) => {
+            console.log(arg[0]); // Full file path
+            procoreData[index].saveLocation = arg[0]
+            proceedDownload()
+    })
+    }
+
+}
+
+// Downloads drawings
+const downloadDrawing = (drawing, profile) => {
+    return new Promise((resolve, reject) =>{
+        ipcRenderer.send("download", {
+            url: drawing.current_revision.pdf_url,
+            options: {directory: profile.saveLocation, filename: `${drawing.number} - ${drawing.title}.pdf`}    
+        })
+      
+        ipcRenderer.on("download complete", (event, arg) => {
+            resolve('download complete')
+        });
+    })
 }
 
 // Prepopulates & opens modal upon item click (don't worry, its being called)
@@ -470,12 +523,12 @@ exports.startObserve = () => {
     // Monitors for new adds to procoreData
     _.observe(procoreData, 'create', function(new_item, item_index){
         const listLinkItem = document.createElement('a'); listLinkItem.classList = "list-group-item list-group-item-action"; listLinkItem.setAttribute("id", new_item._id); listLinkItem.setAttribute("onClick", 'triggerModal(event, this.id)');
-        const rowDiv = document.createElement('div'); rowDiv.classList = 'row align-items-center no-gutters' 
+        const rowDiv = document.createElement('div'); rowDiv.classList = 'row align-items-center flex-nowrap no-gutters' 
         const colDiv = document.createElement('div'); colDiv.classList = 'col mr-2'
         const h6 = document.createElement('h6'); h6.classList = 'mb-0'; h6.innerHTML = `<strong>${new_item.selectedCompany.name}</strong>`
         const spanText = document.createElement('span'); spanText.classList = "text-xs"; spanText.innerText = `${new_item.selectedDrawingDiscipline.name}`
         const colDiv2 = document.createElement('div'); colDiv2.classList = "col-auto"
-        const downloadButton = document.createElement('button'); downloadButton.classList = "btn btn-primary"; $(downloadButton).css("background", "url(\"assets/img/avatars/download-2-128.png\") center / 15px no-repeat"); $(downloadButton).css("height", "22px"); $(downloadButton).css("border-style", "none"); downloadButton.setAttribute("onClick", 'downloadDrawings(event, this.id)');
+        const downloadButton = document.createElement('button'); downloadButton.setAttribute("id", new_item._id); downloadButton.classList = "btn btn-primary"; $(downloadButton).css("background", "url(\"assets/img/avatars/download-2-128.png\") center / 15px no-repeat"); $(downloadButton).css("height", "22px"); $(downloadButton).css("border-style", "none"); downloadButton.setAttribute("onClick", 'downloadDrawings(event, this.id, accessToken)');
         const colDiv3 = document.createElement('div'); colDiv3.classList = "col-xl-1 text-right"; $(colDiv3).css("padding-right", "15px")
         const deleteButton = document.createElement('button'); deleteButton.classList = "close"; deleteButton.setAttribute("id", new_item._id); deleteButton.setAttribute("onClick", 'deleteItem(event, this.id)');
         const closeSpan = document.createElement('span'); closeSpan.setAttribute("aria-hidden", "true"); closeSpan.innerText='x'
