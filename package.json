@@ -1,5 +1,5 @@
 {
-  "name": "procore-electron",
+  "name": "procore-autosheet",
   "version": "1.0.0",
   "description": "AH!",
   "main": "main.js",
@@ -10,13 +10,15 @@
   "author": "KB",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^12.0.2",
+    "electron": "^13.1.8",
     "electron-reloader": "^1.2.1"
   },
   "dependencies": {
+    "@types/jquery": "^3.5.6",
     "axios": "^0.21.1",
     "electron-dl": "^3.2.1",
     "electron-store": "^7.0.3",
+    "jquery": "^3.6.0",
     "lodash": "^4.17.21"
   }
 }
