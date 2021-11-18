@@ -17,6 +17,7 @@ Autosheet's content is split into 3 separate areas that handle the core function
 User authentication is handled by OAuth2 using Procore credentials. Once successfully authenticated, the user is routed to the Autosheet dashboard.
 
 ![Login Screen](https://i.imgur.com/Q422ou5.jpg)
+_______________________________________________________
 ![Procore Login Screen](https://i.imgur.com/JRyJ9cR.jpg)
 
 ### Autosheet Dashboard
