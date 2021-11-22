@@ -165,6 +165,19 @@ const editProfile = (selectionId) => {
     const selectedData = procoreData[indexOfId]
     let dataBucket = {}
 
+    // Step 1 - Saves edited company to dataBucket & populates project select
+    $('#select-company').unbind("select2:select").on('select2:select', function (e) {
+        $('#select-project').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
+        $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true);
+        $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
+        const data = e.params.data
+        dataBucket.selectedCompany = { id: data.id, name: data.text }
+        if (dataBucket.selectedCompany) {
+            editRenderProjectList(data, accessToken)
+        }
+        console.log(dataBucket.selectedCompany)
+    })
+
     // Initial render of prepopulated
     const renderProjectList = (company, accessToken) => {
         $("#loading-project-list").css("display", "inline");
