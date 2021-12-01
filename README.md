@@ -1,4 +1,4 @@
-# Expensify
+# Autosheet
 
 Autosheet is an Electron/Node.js desktop application that locally syncs Procore drawings in bulk. Currently under development but usable through npm install/npm start.
 
