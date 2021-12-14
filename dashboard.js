@@ -17,7 +17,7 @@ $(() => {
 
     // Initializes company info, hides loading gif
     $('#drawings-modal').removeAttr("tabindex")
-    $.get(`https://sandbox.procore.com/rest/v1.0/companies`, { access_token: accessToken })
+    $.get(`https://api.procore.com/rest/v1.0/companies`, { access_token: accessToken })
         .done(function (data) {
             let bucket = []
             if (data) {

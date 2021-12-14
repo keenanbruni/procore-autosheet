@@ -25,7 +25,7 @@ exports.addProfileHandler = () => {
 
     const renderProjectList = (company, accessToken) => {
         $("#loading-project-list").css("display", "inline");
-        $.get("https://sandbox.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
+        $.get("https://api.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -67,7 +67,7 @@ exports.addProfileHandler = () => {
 
     const renderDrawingAreaList = (data, accessToken) => {
         $("#loading-drawing-area-list").css("display", "inline");
-        $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { access_token: accessToken, project_id: data.id })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { access_token: accessToken, project_id: data.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -107,7 +107,7 @@ exports.addProfileHandler = () => {
 
     const renderDrawingDisciplineList = (data, accessToken) => {
         $("#loading-drawing-discipline-list").css("display", "inline");
-        $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { access_token: accessToken, project_id: data })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { access_token: accessToken, project_id: data })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -181,7 +181,7 @@ const editProfile = (selectionId) => {
     // Initial render of prepopulated
     const renderProjectList = (company, accessToken) => {
         $("#loading-project-list").css("display", "inline");
-        $.get("https://sandbox.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
+        $.get("https://api.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -213,7 +213,7 @@ const editProfile = (selectionId) => {
     }
     const renderDrawingArea = (data, accessToken) => {
         $("#loading-drawing-area-list").css("display", "inline");
-        $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { access_token: accessToken, project_id: data.id })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { access_token: accessToken, project_id: data.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -245,7 +245,7 @@ const editProfile = (selectionId) => {
     }
     const renderDisciplines = (data, accessToken) => {
         $("#loading-drawing-discipline-list").css("display", "inline");
-        $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { access_token: accessToken, project_id: data })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { access_token: accessToken, project_id: data })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -277,7 +277,7 @@ const editProfile = (selectionId) => {
     // Edit handlers
     const editRenderProjectList = (company, accessToken) => {
         $("#loading-project-list").css("display", "inline");
-        $.get("https://sandbox.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
+        $.get("https://api.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -304,7 +304,7 @@ const editProfile = (selectionId) => {
     }
     const editRenderDrawingAreaList = (data, accessToken) => {
         $("#loading-drawing-area-list").css("display", "inline");
-        $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { access_token: accessToken, project_id: data.id })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { access_token: accessToken, project_id: data.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -331,7 +331,7 @@ const editProfile = (selectionId) => {
     }
     const editRenderDrawingDisciplineList = (data, accessToken) => {
         $("#loading-drawing-discipline-list").css("display", "inline");
-        $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { access_token: accessToken, project_id: data })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { access_token: accessToken, project_id: data })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -421,7 +421,7 @@ const editProfile = (selectionId) => {
     $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
     
     // Trigger population chain
-    $.get(`https://sandbox.procore.com/rest/v1.0/companies`, { access_token: accessToken })
+    $.get(`https://api.procore.com/rest/v1.0/companies`, { access_token: accessToken })
         .done(function(data) {
             let bucket = []
             if (data) {
@@ -475,7 +475,7 @@ const downloadDrawings = (e, id, accessToken) => {
     const discipline = selectedProfileInfo.selectedDrawingDiscipline.name
 
     const proceedDownload = () => {
-        $.get(`https://sandbox.procore.com/rest/v1.1/drawing_areas/${drawingAreaId}/drawings`, { drawing_area_id: drawingAreaId, access_token: accessToken, project_id: projectId })
+        $.get(`https://api.procore.com/rest/v1.1/drawing_areas/${drawingAreaId}/drawings`, { drawing_area_id: drawingAreaId, access_token: accessToken, project_id: projectId })
             .done(function (data) {
                 if (data) {
                     const drawingBucket = data.filter(drawing => drawing.discipline === discipline)
