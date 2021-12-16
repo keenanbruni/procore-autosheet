@@ -601,6 +601,9 @@ exports.startObserve = () => {
 
 // Misc event handlers
 exports.startMisc = () => {
+    $('#logout-button').on('click', () => {
+        ipcRenderer.send("logout")
+    })
 }
 
 // Terminal logger

@@ -82,7 +82,17 @@ function createWindow() {
 
       // Logout redirect
       ipcMain.on('logout', (e, arg) => {
-        win.loadFile('./login.html')
+        const params = { token: store.get('access-token'), client_id: process.env.CLIENT_ID, client_secret: process.env.CLIENT_SECRET }
+        axios.post('https://api.procore.com/oauth/revoke', params)
+          .then(function (response){
+            if(response.status == 200){
+              win.loadFile('./login.html')
+            }
+          }
+          )
+          .catch(function (error) {
+            console.log(`AW CRAP! : ${error}`);
+          });
       })
     }
   })
