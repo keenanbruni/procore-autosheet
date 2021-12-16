@@ -6,6 +6,7 @@ const Store = require('electron-store')
 const {download} = require("electron-dl");
 const path = require('path')
 const axios = require('axios')
+require('dotenv').config()
 
 // Initial declarations
 const store = new Store();
@@ -13,8 +14,8 @@ let accessCode = ""
 let refreshToken = ""
 let authCodeData = {
   "grant_type": "authorization_code",
-  "client_id": "c54c7efb485fd98f2d4e144cdf42e98e40dbec9f673e4a0e88b5960fe78d4161",
-  "client_secret": "0599d47b0df5b56991e8d7ad14152511711b22c8ac68a37d885555a7a0f95f59",
+  "client_id": process.env.CLIENT_ID,
+  "client_secret": process.env.CLIENT_SECRET,
   "code": accessCode,
   "redirect_uri": "https://login.procore.com/",
   "refresh_token": refreshToken
