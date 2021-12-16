@@ -7,9 +7,6 @@ const hideLoader = () => {
 }
 let procoreData = [] // critical component - container for all user data
 
-// Registers custom profile component
-// exports.defineProfileComponent()
-
 // App 
 $(() => {
     // Force hide loader if theres an error
@@ -43,6 +40,9 @@ $(() => {
 
         // Enables lodash observe
         exports.startObserve()
+
+        // Starts miscellaneous observers
+        exports.startMisc()
 
         // Populates existing profiles
         store.get('procoreData').forEach(profile => {
