@@ -1,5 +1,5 @@
 const { ipcRenderer } = require("electron");
-const { download } = require("electron-dl");
+const { data } = require("jquery");
 
 // Handles add profile
 exports.addProfileHandler = () => {
@@ -7,7 +7,9 @@ exports.addProfileHandler = () => {
         selectedCompany: "",
         selectedProject: "",
         selectedDrawingArea: "",
-        selectedDrawingDiscipline: ""
+        selectedDrawingDiscipline: "",
+        id: uuidv4(),
+        saveLocation: ""
     }
 
     // Step 1 - Saves selected company to dataBucket & populates project select
@@ -25,7 +27,7 @@ exports.addProfileHandler = () => {
 
     const renderProjectList = (company, accessToken) => {
         $("#loading-project-list").css("display", "inline");
-        $.get("https://sandbox.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
+        $.get("https://api.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -67,7 +69,7 @@ exports.addProfileHandler = () => {
 
     const renderDrawingAreaList = (data, accessToken) => {
         $("#loading-drawing-area-list").css("display", "inline");
-        $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { access_token: accessToken, project_id: data.id })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { access_token: accessToken, project_id: data.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -107,7 +109,7 @@ exports.addProfileHandler = () => {
 
     const renderDrawingDisciplineList = (data, accessToken) => {
         $("#loading-drawing-discipline-list").css("display", "inline");
-        $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { access_token: accessToken, project_id: data })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { access_token: accessToken, project_id: data })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -133,18 +135,29 @@ exports.addProfileHandler = () => {
             })
     }
 
-    // Step 4 - Saves selected drawing discipline to dataBucket, enables save button
+    // Step 4 - Saves selected drawing discipline to dataBucket
     $('#select-drawing-disciplines').unbind("select2:select").on('select2:select', function (e) {
         let data = e.params.data
         dataBucket.selectedDrawingDiscipline = { id: data.id, name: data.text }
         console.log(dataBucket.selectedDrawingDiscipline)
-        $('#save-close-button').prop("disabled", false); $('#save-close-button').removeClass("disabled"); 
+        $('#save-location').prop("disabled", false); $('#save-location').removeClass("disabled"); 
     })
 
-    // Step 5 - Commits data upon close
+    // Step 5 - Set download location, enables save button
+    $('#save-location').unbind('click').on('click', () => {
+        ipcRenderer.send('save-location')
+        
+        // Upon received message with save location
+        ipcRenderer.on("saved-location", (event, arg) => {
+            dataBucket.saveLocation = arg[0]
+            $('#save-close-button').prop("disabled", false); $('#save-close-button').removeClass("disabled");
+        }) 
+    })
+
+    // Step 6 - Commits data upon close
     $('#save-close-button').unbind('click').on('click', () => {
         if (dataBucket.selectedDrawingDiscipline){
-            procoreData.push({ _id: uuidv4(), selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline })
+            procoreData.push({ _id: dataBucket.id, selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline, saveLocation: dataBucket.saveLocation })
             store.set('procoreData', procoreData)
         }
     })
@@ -169,7 +182,7 @@ const editProfile = (selectionId) => {
     $('#select-company').unbind("select2:select").on('select2:select', function (e) {
         $('#select-project').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
         $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true);
-        $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
+        $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled"); $('#save-location').prop('disabled', true); $('#save-location').addClass("disabled");
         const data = e.params.data
         dataBucket.selectedCompany = { id: data.id, name: data.text }
         if (dataBucket.selectedCompany) {
@@ -181,7 +194,7 @@ const editProfile = (selectionId) => {
     // Initial render of prepopulated
     const renderProjectList = (company, accessToken) => {
         $("#loading-project-list").css("display", "inline");
-        $.get("https://sandbox.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
+        $.get("https://api.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -213,7 +226,7 @@ const editProfile = (selectionId) => {
     }
     const renderDrawingArea = (data, accessToken) => {
         $("#loading-drawing-area-list").css("display", "inline");
-        $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { access_token: accessToken, project_id: data.id })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { access_token: accessToken, project_id: data.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -245,7 +258,7 @@ const editProfile = (selectionId) => {
     }
     const renderDisciplines = (data, accessToken) => {
         $("#loading-drawing-discipline-list").css("display", "inline");
-        $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { access_token: accessToken, project_id: data })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { access_token: accessToken, project_id: data })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -277,7 +290,7 @@ const editProfile = (selectionId) => {
     // Edit handlers
     const editRenderProjectList = (company, accessToken) => {
         $("#loading-project-list").css("display", "inline");
-        $.get("https://sandbox.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
+        $.get("https://api.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -304,7 +317,7 @@ const editProfile = (selectionId) => {
     }
     const editRenderDrawingAreaList = (data, accessToken) => {
         $("#loading-drawing-area-list").css("display", "inline");
-        $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { access_token: accessToken, project_id: data.id })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { access_token: accessToken, project_id: data.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -331,7 +344,7 @@ const editProfile = (selectionId) => {
     }
     const editRenderDrawingDisciplineList = (data, accessToken) => {
         $("#loading-drawing-discipline-list").css("display", "inline");
-        $.get(`https://sandbox.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { access_token: accessToken, project_id: data })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { access_token: accessToken, project_id: data })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -401,15 +414,24 @@ const editProfile = (selectionId) => {
         let data = e.params.data
         dataBucket.selectedDrawingDiscipline = { id: data.id, name: data.text }
         console.log(dataBucket.selectedDrawingDiscipline)
-        $('#save-close-button').prop("disabled", false); $('#save-close-button').removeClass("disabled");
+        $('#save-close-button').prop("disabled", false); $('#save-close-button').removeClass("disabled"); $('#save-location').prop("disabled", false); $('#save-location').removeClass("disabled"); 
     })
 
-    // Step 5 - Commits edited data upon close
+    // Step 5a (OPTIONAL) Set save location
+    $('#save-location').unbind('click').on('click', () => {
+        ipcRenderer.send('save-location')
+        
+        // Upon received message with save location
+        ipcRenderer.on("saved-location", (event, arg) => {
+            dataBucket.saveLocation = arg[0]
+        }) 
+    })
+
+    // Step 5b - Commits edited data upon close
     $('#save-close-button').unbind('click').on('click', () => {
         if (dataBucket.selectedDrawingDiscipline) {
             const indexOfId = procoreData.findIndex(i => i._id === selectionId)
-            procoreData[indexOfId] = { _id: selectionId, selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline }
-            // procoreData.push({ _id: uuidv4(), selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline })
+            procoreData[indexOfId] = { _id: selectionId, selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline, saveLocation: dataBucket.saveLocation }
             store.set('procoreData', procoreData)
         }
     })
@@ -421,7 +443,7 @@ const editProfile = (selectionId) => {
     $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
     
     // Trigger population chain
-    $.get(`https://sandbox.procore.com/rest/v1.0/companies`, { access_token: accessToken })
+    $.get(`https://api.procore.com/rest/v1.0/companies`, { access_token: accessToken })
         .done(function(data) {
             let bucket = []
             if (data) {
@@ -475,7 +497,7 @@ const downloadDrawings = (e, id, accessToken) => {
     const discipline = selectedProfileInfo.selectedDrawingDiscipline.name
 
     const proceedDownload = () => {
-        $.get(`https://sandbox.procore.com/rest/v1.1/drawing_areas/${drawingAreaId}/drawings`, { drawing_area_id: drawingAreaId, access_token: accessToken, project_id: projectId })
+        $.get(`https://api.procore.com/rest/v1.1/drawing_areas/${drawingAreaId}/drawings`, { drawing_area_id: drawingAreaId, access_token: accessToken, project_id: projectId })
             .done(function (data) {
                 if (data) {
                     const drawingBucket = data.filter(drawing => drawing.discipline === discipline)
@@ -512,11 +534,13 @@ const downloadDrawings = (e, id, accessToken) => {
 // Downloads drawings
 const downloadDrawing = (drawing, profile) => {
     return new Promise((resolve, reject) =>{
-        ipcRenderer.send("download", {
-            url: drawing.current_revision.pdf_url,
-            options: {directory: profile.saveLocation, filename: `${drawing.number} - ${drawing.title}.pdf`}    
-        })
-      
+        setTimeout(() => {
+            ipcRenderer.send("download", {
+                url: drawing.current_revision.pdf_url,
+                options: {directory: profile.saveLocation, filename: `${drawing.number} - ${drawing.title}.pdf`}    
+            })
+        }, 150)
+
         ipcRenderer.on("download complete", (event, arg) => {
             resolve('download complete')
         });
@@ -538,7 +562,7 @@ exports.startObserve = () => {
         const listLinkItem = document.createElement('a'); listLinkItem.classList = "list-group-item list-group-item-action"; listLinkItem.setAttribute("id", new_item._id); listLinkItem.setAttribute("onClick", 'triggerModal(event, this.id)');
         const rowDiv = document.createElement('div'); rowDiv.classList = 'row align-items-center flex-nowrap no-gutters' 
         const colDiv = document.createElement('div'); colDiv.classList = 'col text-nowrap mr-2'
-        const h6 = document.createElement('h6'); h6.classList = 'mb-0'; h6.innerHTML = `<strong>${new_item.selectedCompany.name}</strong>`
+        const h6 = document.createElement('h6'); h6.classList = 'mb-0'; h6.innerHTML = `<strong>${new_item.selectedProject.name}</strong>`
         const spanText = document.createElement('span'); spanText.classList = "text-xs"; spanText.innerText = `${new_item.selectedDrawingDiscipline.name}`
         const colDiv2 = document.createElement('div'); colDiv2.classList = "col-auto"
         const downloadButton = document.createElement('button'); downloadButton.setAttribute("id", new_item._id); downloadButton.classList = "btn btn-primary"; $(downloadButton).css("background", "url(\"assets/img/avatars/download-2-128.png\") center / 15px no-repeat"); $(downloadButton).css("height", "22px"); $(downloadButton).css("border-style", "none"); downloadButton.setAttribute("onClick", 'downloadDrawings(event, this.id, accessToken)');
@@ -573,4 +597,13 @@ exports.startObserve = () => {
             }
         })
     })
+}
+
+// Misc event handlers
+exports.startMisc = () => {
+}
+
+// Terminal logger
+const logger = (arg) => {
+    ipcRenderer.send("logger", arg)
 }

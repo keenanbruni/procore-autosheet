@@ -7,9 +7,6 @@ const hideLoader = () => {
 }
 let procoreData = [] // critical component - container for all user data
 
-// Registers custom profile component
-// exports.defineProfileComponent()
-
 // App 
 $(() => {
     // Force hide loader if theres an error
@@ -17,7 +14,7 @@ $(() => {
 
     // Initializes company info, hides loading gif
     $('#drawings-modal').removeAttr("tabindex")
-    $.get(`https://sandbox.procore.com/rest/v1.0/companies`, { access_token: accessToken })
+    $.get(`https://api.procore.com/rest/v1.0/companies`, { access_token: accessToken })
         .done(function (data) {
             let bucket = []
             if (data) {
@@ -43,6 +40,9 @@ $(() => {
 
         // Enables lodash observe
         exports.startObserve()
+
+        // Starts miscellaneous observers
+        exports.startMisc()
 
         // Populates existing profiles
         store.get('procoreData').forEach(profile => {

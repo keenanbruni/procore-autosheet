@@ -13,10 +13,10 @@ let accessCode = ""
 let refreshToken = ""
 let authCodeData = {
   "grant_type": "authorization_code",
-  "client_id": "9a8c0016b5081cfcee493d0fbb65a4f29609b134e40e18b356d4394b362d17e8",
-  "client_secret": "d7abc979c9b5c2b563169205a05cfec639c955bcbc5a8f42ecdcce0492b14ecb",
+  "client_id": "c54c7efb485fd98f2d4e144cdf42e98e40dbec9f673e4a0e88b5960fe78d4161",
+  "client_secret": "0599d47b0df5b56991e8d7ad14152511711b22c8ac68a37d885555a7a0f95f59",
   "code": accessCode,
-  "redirect_uri": "https://login-sandbox.procore.com/",
+  "redirect_uri": "https://login.procore.com/",
   "refresh_token": refreshToken
 }
 
@@ -59,15 +59,13 @@ function createWindow() {
       console.log(`ACCESS CODE: ${url.split('=')[1]}`)
 
       // Gets Auth & Redirect Token 
-      axios.post('https://login-sandbox.procore.com/oauth/token', authCodeData)
+      axios.post('https://login.procore.com/oauth/token', authCodeData)
         .then(function (response) {
           authCodeData.refreshToken = response.data.refresh_token
           console.log(`ACCESS TOKEN: ${response.data.access_token}`);
           console.log(`REFRESH TOKEN: ${response.data.refresh_token}`)
           store.set('refresh-token', response.data.refresh_token)
           store.set('access-token', response.data.access_token)
-          store.set('client-id', authCodeData.client_id)
-          store.set('client-secret', authCodeData.client_secret)
         })
         .catch(function (error) {
           console.log(`AW CRAP! : ${error}`);
@@ -90,6 +88,9 @@ function createWindow() {
 
   // Handles electron-dl downloads
   ipcMain.on("download", (event, info) => {
+    info.options.onTotalProgress = (status) => {
+      console.log(status)
+    }
     download(BrowserWindow.getFocusedWindow(), info.url, info.options)
       .then(dl => win.webContents.send("download complete", dl.getSavePath()));
   });
@@ -99,30 +100,10 @@ function createWindow() {
     dialog.showOpenDialog({ properties: ['openDirectory'] })
       .then((result) => {
         win.webContents.send("saved-location", result.filePaths)
+        console.log(result.filePaths)
       })
   })
 }
-
-// Messaging
-ipcMain.on('renew-lease', (e, arg) => {
-  axios.post('https://login-sandbox.procore.com/oauth/token', {
-    client_id: authCodeData.client_id,
-    client_secret: authCodeData.client_secret,
-    code: accessCode,
-    grant_type: "refresh_token",
-    redirect_uri: "urn:ietf:wg:oauth:2.0:oob",
-    refresh_token: refreshToken,
-
-  }).then(function (response){
-    authCodeData.refreshToken = response.data.refresh_token
-    console.log(`ACCESS TOKEN: ${response.data.access_token}`);
-    console.log(`REFRESH TOKEN: ${response.data.refresh_token}`)
-    store.set('refresh-token', response.data.refresh_token)
-    store.set('access-token', response.data.access_token)
-    store.set('client-id', authCodeData.client_id)
-    store.set('client-secret', authCodeData.client_secret)
-  })
-})
 
 // Terminal Logger
 ipcMain.on('logger', (event, arg) => {
