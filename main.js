@@ -37,7 +37,7 @@ app.on('window-all-closed', () => {
   }
 })
 
-// Main browser window 
+// Main functionality
 function createWindow() {
   const win = new BrowserWindow({
     width: 720,
@@ -99,9 +99,9 @@ function createWindow() {
 
   // Handles electron-dl downloads
   ipcMain.on("download", (event, info) => {
-    info.options.onTotalProgress = (status) => {
-      console.log(status)
-    }
+    // info.options.onTotalProgress = (status) => {
+    //   console.log(status)
+    // }
     download(BrowserWindow.getFocusedWindow(), info.url, info.options)
       .then(dl => win.webContents.send("download complete", dl.getSavePath()));
   });

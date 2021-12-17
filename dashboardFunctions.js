@@ -502,9 +502,12 @@ const downloadDrawings = (e, id, accessToken) => {
                 if (data) {
                     const drawingBucket = data.filter(drawing => drawing.discipline === discipline)
                     procoreData[index].drawingData = drawingBucket
+                    const numberOfDrawings = drawingBucket.length; let count = 0; 
 
                     const drawingLoop = async () => {
                         for (const drawing of drawingBucket) {
+                            count ++; let percentage = count/numberOfDrawings
+                            logger(percentage)
                             const response = await downloadDrawing(drawing, selectedProfileInfo)
                             console.log(response)
                         }
@@ -537,7 +540,8 @@ const downloadDrawing = (drawing, profile) => {
         setTimeout(() => {
             ipcRenderer.send("download", {
                 url: drawing.current_revision.pdf_url,
-                options: {directory: profile.saveLocation, filename: `${drawing.number} - ${drawing.title}.pdf`}    
+                options: {directory: profile.saveLocation, filename: `${drawing.number} - ${drawing.title}.pdf`},
+                overwrite: true    
             })
         }, 150)
 
