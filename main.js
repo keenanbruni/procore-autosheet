@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, session } = require('electron')
 try {
   require('electron-reloader')(module)
 } catch (_) {}
@@ -21,6 +21,7 @@ let authCodeData = {
   "refresh_token": refreshToken
 }
 
+// Electron Initialization
 app.whenReady().then(() => {
   createWindow()
 
@@ -30,7 +31,6 @@ app.whenReady().then(() => {
     }
   })
 })
-
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
@@ -63,17 +63,18 @@ function createWindow() {
       axios.post('https://login.procore.com/oauth/token', authCodeData)
         .then(function (response) {
           authCodeData.refreshToken = response.data.refresh_token
-          console.log(`ACCESS TOKEN: ${response.data.access_token}`);
+          console.log(`ACCESS TOKEN: ${response.data.access_token}`)
           console.log(`REFRESH TOKEN: ${response.data.refresh_token}`)
           store.set('refresh-token', response.data.refresh_token)
           store.set('access-token', response.data.access_token)
+
+          // Redirects to Dash
+          win.loadFile('./dashboard.html')
         })
         .catch(function (error) {
           console.log(`AW CRAP! : ${error}`);
         });
 
-      // Redirects to Dash
-      win.loadFile('./dashboard.html')
       // Upsize window
       let width = 1200;
       let height = 800;
@@ -82,10 +83,15 @@ function createWindow() {
 
       // Logout redirect
       ipcMain.on('logout', (e, arg) => {
-        const params = { token: store.get('access-token'), client_id: process.env.CLIENT_ID, client_secret: process.env.CLIENT_SECRET }
+        const params = { token: store.get('access-token'), client_id: process.env.CLIENT_ID, client_secret: process.env.CLIENT_SECRET, token_type_hint: 'access_token' }
         axios.post('https://api.procore.com/oauth/revoke', params)
           .then(function (response){
             if(response.status == 200){
+              store.set('access-token', ""); store.set('refresh-token', ""); authCodeData.refresh_token = ""; authCodeData.code = "";
+              session.defaultSession.clearStorageData([], (data) => {})
+              // Downsize window
+              let width = 720; let height = 720; let animate = true;
+              win.setSize(width, height, animate);
               win.loadFile('./login.html')
             }
           }

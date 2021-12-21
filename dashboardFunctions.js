@@ -211,7 +211,7 @@ const editProfile = (selectionId) => {
                     data: bucket
                 })
                 $("#select-project").select2("trigger", "select", {
-                    data: { id: selectedData.selectedProject.id }
+                    data: { id: selectedData.selectedProject.id, name: selectedData.selectedProject.name }
                 });
                 $('#select-project').prop("disabled", false)
                 $("#loading-project-list").css("display", "none");
@@ -243,7 +243,7 @@ const editProfile = (selectionId) => {
                     data: bucket
                 })
                 $("#select-drawing-area").select2("trigger", "select", {
-                    data: { id: selectedData.selectedDrawingArea.id }
+                    data: { id: selectedData.selectedDrawingArea.id, name: selectedData.selectedDrawingArea.name }
                 });
                 $('#select-drawing-area').prop("disabled", false)
                 $("#loading-drawing-area-list").css("display", "none");
@@ -275,7 +275,7 @@ const editProfile = (selectionId) => {
                     data: bucket
                 })
                 $("#select-drawing-disciplines").select2("trigger", "select", {
-                    data: { id: selectedData.selectedDrawingDiscipline.id }
+                    data: { id: selectedData.selectedDrawingDiscipline.id, name: selectedData.selectedDrawingDiscipline.name }
                 });
                 $('#select-drawing-disciplines').prop("disabled", false)
                 $("#loading-drawing-discipline-list").css("display", "none");
@@ -376,8 +376,8 @@ const editProfile = (selectionId) => {
         $('#select-project').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
         $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true);
         $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
-        const data = e.params.data
-        dataBucket.selectedCompany = { id: data.id, name: data.text }
+        const data = e.params.data; 
+        dataBucket.selectedCompany = { id: data.id, name: $('#select-company').select2('data')[0].text }
         if (dataBucket.selectedCompany) {
             editRenderProjectList(data, accessToken)
         }
@@ -390,7 +390,7 @@ const editProfile = (selectionId) => {
         $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true);
         $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
         let data = e.params.data
-        dataBucket.selectedProject = { id: data.id, name: data.text }
+        dataBucket.selectedProject = { id: data.id, name: $('#select-project').select2('data')[0].text }
         console.log(dataBucket.selectedProject)
         if (dataBucket.selectedProject) {
             editRenderDrawingAreaList(data, accessToken)
@@ -402,7 +402,7 @@ const editProfile = (selectionId) => {
         $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').prop("disabled", true);
         $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
         let data = e.params.data
-        dataBucket.selectedDrawingArea = { id: data.id, name: data.text }
+        dataBucket.selectedDrawingArea = { id: data.id, name: $('#select-drawing-area').select2('data')[0].text }
         console.log(dataBucket.selectedDrawingArea)
         if (dataBucket.selectedDrawingArea) {
             editRenderDrawingDisciplineList(selectedData.selectedProject.id, accessToken)
@@ -412,7 +412,7 @@ const editProfile = (selectionId) => {
     // Step 4 - Saves edited drawing discipline to dataBucket, enables save button
     $('#select-drawing-disciplines').unbind("select2:select").on('select2:select', function (e) {
         let data = e.params.data
-        dataBucket.selectedDrawingDiscipline = { id: data.id, name: data.text }
+        dataBucket.selectedDrawingDiscipline = { id: data.id, name: $('#select-drawing-disciplines').select2('data')[0].text }
         console.log(dataBucket.selectedDrawingDiscipline)
         $('#save-close-button').prop("disabled", false); $('#save-close-button').removeClass("disabled"); $('#save-location').prop("disabled", false); $('#save-location').removeClass("disabled"); 
     })
@@ -506,8 +506,9 @@ const downloadDrawings = (e, id, accessToken) => {
 
                     const drawingLoop = async () => {
                         for (const drawing of drawingBucket) {
-                            count ++; let percentage = count/numberOfDrawings
-                            logger(percentage)
+                            count ++; let percentage = count/numberOfDrawings * 100;
+                            $('#progress-modal').removeAttr("tabindex"); $('#progress-modal').modal();
+                            $('#progress-bar').css('width', `${percentage}%`).attr('aria-valuenow', percentage); $('#progress-bar').text(`${Math.round(percentage)}%`)
                             const response = await downloadDrawing(drawing, selectedProfileInfo)
                             console.log(response)
                         }
@@ -567,7 +568,7 @@ exports.startObserve = () => {
         const rowDiv = document.createElement('div'); rowDiv.classList = 'row align-items-center flex-nowrap no-gutters' 
         const colDiv = document.createElement('div'); colDiv.classList = 'col text-nowrap mr-2'
         const h6 = document.createElement('h6'); h6.classList = 'mb-0'; h6.innerHTML = `<strong>${new_item.selectedProject.name}</strong>`
-        const spanText = document.createElement('span'); spanText.classList = "text-xs"; spanText.innerText = `${new_item.selectedDrawingDiscipline.name}`
+        const spanText = document.createElement('span'); spanText.classList = "text-xs"; spanText.innerText = `${new_item.selectedDrawingArea.name} - ${new_item.selectedDrawingDiscipline.name}`
         const colDiv2 = document.createElement('div'); colDiv2.classList = "col-auto"
         const downloadButton = document.createElement('button'); downloadButton.setAttribute("id", new_item._id); downloadButton.classList = "btn btn-primary"; $(downloadButton).css("background", "url(\"assets/img/avatars/download-2-128.png\") center / 15px no-repeat"); $(downloadButton).css("height", "22px"); $(downloadButton).css("border-style", "none"); downloadButton.setAttribute("onClick", 'downloadDrawings(event, this.id, accessToken)');
         const colDiv3 = document.createElement('div'); colDiv3.classList = "col-xl-1 text-right"; $(colDiv3).css("padding-right", "15px")
@@ -594,19 +595,28 @@ exports.startObserve = () => {
 
     // Monitors procoreData array for changes and makes updates
     _.observe(procoreData, 'update', function (new_item, old_item, item_index){
-        $('#drawing-list').children().each(function (){
-            if ($(this).attr("id") === new_item._id){
-                $(this).find('h6').html(`<stong>${new_item.selectedCompany.name}</strong>`); $(this).find('h6').css("font-weight",`bold`)
-                $(this).find('.text-xs').text(`${new_item.selectedDrawingDiscipline.name}`)
-            }
-        })
+        if (new_item) {
+            $('#drawing-list').children().each(function (){
+                if ($(this).attr("id") === new_item._id){
+                    $(this).find('h6').html(`${new_item.selectedProject.name}`); $(this).find('h6').css("font-weight",`bold`)
+                    $(this).find('.text-xs').text(`${new_item.selectedDrawingArea.name} - ${new_item.selectedDrawingDiscipline.name}`)
+                }
+            })
+        }
     })
 }
 
 // Misc event handlers
 exports.startMisc = () => {
+    // Logout
     $('#logout-button').on('click', () => {
         ipcRenderer.send("logout")
+    })
+
+    // User info
+    $.get(`https://api.procore.com/rest/v1.0/me`, { access_token:accessToken })
+    .done(function (response){
+        $('#user-name').text(response.login)
     })
 }
 

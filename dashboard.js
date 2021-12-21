@@ -17,7 +17,7 @@ $(() => {
     $.get(`https://api.procore.com/rest/v1.0/companies`, { access_token: accessToken })
         .done(function (data) {
             let bucket = []
-            if (data) {
+            if (data != []) {
                 // Populate company selection interface
                 data.forEach(item => {
                     let object = {}
@@ -25,11 +25,19 @@ $(() => {
                     object.text = item.name
                     bucket.push(object)
                 })
-
+        
                 $("#select-company").select2({
                     data: bucket
                 })
             } 
+            else {
+                // show error modal
+            }
+        })
+        .fail(function (data) {
+            if (data) {
+                console.log(`Failure Data: ${data}`)
+            }
         })
 
         // Add Profile Handler
