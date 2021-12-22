@@ -360,7 +360,6 @@ exports.startMonitoring = () => {
 
     // Monitors procoreData array for updates, then commits to store
     _.observe(procoreData, 'update', function(new_item, old_item, item_index){
-        exports.logger(`ahhh shit my boy be updatin procoreData`)
         store.set('procoreData', procoreData)
     })
 

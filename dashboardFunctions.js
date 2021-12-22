@@ -115,15 +115,17 @@ exports.addProfileHandler = () => {
                 if (data) {
                     // Populate select
                     data.forEach(item => {
-                        let object = {}
-                        object.id = item.id
-                        object.text = item.name
-                        bucket.push(object)
+                        if (item.id){
+                            let object = {}
+                            object.id = item.id; object.text = item.name
+                            bucket.push(object)
+                        }
                     })
                 }
                 $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
                 $("#select-drawing-disciplines").select2({
-                    data: bucket
+                    data: bucket,
+                    dropdownParent: $('#drawings-modal')
                 })
                 $('#select-drawing-disciplines').prop("disabled", false)
                 $("#loading-drawing-discipline-list").css("display", "none");
@@ -485,6 +487,16 @@ const deleteItem = (e, id) => {
     e.stopPropagation()
     const indexOfId = procoreData.findIndex(i => i._id === id)
     procoreData.splice(indexOfId, 1)
+
+    // Adds message if no drawing profiles exist
+    if (store.get('procoreData').length === 0) {
+        const listLinkItem = document.createElement('a'); listLinkItem.classList = "list-group-item list-group-item-action"; listLinkItem.setAttribute("id", 'no-drawings')
+        const rowDiv = document.createElement('div'); rowDiv.classList = 'row align-items-center flex-nowrap no-gutters'
+        const colDiv = document.createElement('div'); colDiv.classList = 'col text-nowrap mr-2'
+        const h6 = document.createElement('h6'); h6.classList = 'mb-0'; h6.innerHTML = `<strong>Click "Add Drawings" to get started!</strong>`
+        listLinkItem.appendChild(rowDiv); rowDiv.appendChild(colDiv); colDiv.appendChild(h6);
+        $('#drawing-list').append(listLinkItem)
+    }
 }
 
 // Stores list of drawings & download URLS in local storage (don't worry, its being called)
@@ -504,21 +516,27 @@ const downloadDrawings = (e, id, accessToken) => {
                     procoreData[index].drawingData = drawingBucket
                     const numberOfDrawings = drawingBucket.length; let count = 0; 
 
-                    const drawingLoop = async () => {
-                        for (const drawing of drawingBucket) {
-                            count ++; let percentage = count/numberOfDrawings * 100;
-                            $('#progress-modal').removeAttr("tabindex"); $('#progress-modal').modal();
-                            $('#progress-bar').css('width', `${percentage}%`).attr('aria-valuenow', percentage); $('#progress-bar').text(`${Math.round(percentage)}%`)
-                            const response = await downloadDrawing(drawing, selectedProfileInfo)
-                            console.log(response)
-                        }
+                    if(drawingBucket.length === 1){
+                        logger('only one drawing bro')
+                        downloadDrawing(drawingBucket[0], selectedProfileInfo)
                     }
-                    drawingLoop()
+                    else {
+                        const drawingLoop = async () => {
+                            for (const drawing of drawingBucket) {
+                                count ++; let percentage = count/numberOfDrawings * 100;
+                                $('#progress-modal').removeAttr("tabindex"); $('#progress-modal').modal();
+                                $('#progress-bar').css('width', `${percentage}%`).attr('aria-valuenow', percentage); $('#progress-bar').text(`${Math.round(percentage)}%`)
+                                const response = await downloadDrawing(drawing, selectedProfileInfo)
+                                console.log(response)
+                            }
+                        }
+                        drawingLoop()
+                    }
                 }
             })
     }
 
-    // Checks to see if save location is set prior to download (kinda janky, doesn't give the option to set a new save location. Should specify save location in the modal)
+    // Checks to see if save location is set prior to download 
     if (selectedProfileInfo.saveLocation){
         proceedDownload()
     } else {
@@ -579,7 +597,7 @@ exports.startObserve = () => {
         rowDiv.appendChild(colDiv3); colDiv3.appendChild(downloadButton)
         rowDiv.appendChild(colDiv2); colDiv2.appendChild(deleteButton); deleteButton.appendChild(closeSpan)
 
-        $('#drawing-list').append(listLinkItem)
+        $('#drawing-list').append(listLinkItem); $('#no-drawings').remove()
     })
 
      // Monitors procoreData array for deletes, then removes node and saves to store
@@ -618,6 +636,22 @@ exports.startMisc = () => {
     .done(function (response){
         $('#user-name').text(response.login)
     })
+
+    // Populates existing profiles
+    if (store.get('procoreData').length === 0) {
+        const listLinkItem = document.createElement('a'); listLinkItem.classList = "list-group-item list-group-item-action"; listLinkItem.setAttribute("id", 'no-drawings')
+        const rowDiv = document.createElement('div'); rowDiv.classList = 'row align-items-center flex-nowrap no-gutters' 
+        const colDiv = document.createElement('div'); colDiv.classList = 'col text-nowrap mr-2'
+        const h6 = document.createElement('h6'); h6.classList = 'mb-0'; h6.innerHTML = `<strong>Click "Add Drawings" to get started!</strong>`
+        listLinkItem.appendChild(rowDiv); rowDiv.appendChild(colDiv); colDiv.appendChild(h6);
+        $('#drawing-list').append(listLinkItem)
+    }
+    else {
+        $('#no-drawings').remove()
+        store.get('procoreData').forEach(profile => {
+            procoreData.push(profile)
+        })
+    }
 }
 
 // Terminal logger

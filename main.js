@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, session } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, session, DownloadItem } = require('electron')
 try {
   require('electron-reloader')(module)
 } catch (_) {}
@@ -105,9 +105,6 @@ function createWindow() {
 
   // Handles electron-dl downloads
   ipcMain.on("download", (event, info) => {
-    // info.options.onTotalProgress = (status) => {
-    //   console.log(status)
-    // }
     download(BrowserWindow.getFocusedWindow(), info.url, info.options)
       .then(dl => win.webContents.send("download complete", dl.getSavePath()));
   });

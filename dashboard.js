@@ -51,9 +51,4 @@ $(() => {
 
         // Starts miscellaneous observers
         exports.startMisc()
-
-        // Populates existing profiles
-        store.get('procoreData').forEach(profile => {
-            procoreData.push(profile)
-        })
 })
