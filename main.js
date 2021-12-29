@@ -81,6 +81,11 @@ function createWindow() {
       let animate = true;
       win.setSize(width, height, animate);
 
+      // Critical error alert
+      ipcMain.on('critical-error', (e, arg) => {
+        dialog.showMessageBox(win, { message:"There has been an error. Please restart the program and try again." })
+      })
+
       // Logout redirect
       ipcMain.on('logout', (e, arg) => {
         const params = { token: store.get('access-token'), client_id: process.env.CLIENT_ID, client_secret: process.env.CLIENT_SECRET, token_type_hint: 'access_token' }
@@ -114,7 +119,6 @@ function createWindow() {
     dialog.showOpenDialog({ properties: ['openDirectory'] })
       .then((result) => {
         win.webContents.send("saved-location", result.filePaths)
-        console.log(result.filePaths)
       })
   })
 }

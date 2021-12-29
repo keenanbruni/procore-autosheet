@@ -24,3 +24,6 @@ LOGIN PAGE:
     <script src="assets/js/theme.js"></script>
     <script src="login.js"></script>
     <script>if (window.module) module = window.module;</script>
+
+    STYLES:
+    <link rel="stylesheet" href="assets/css/styles.css">

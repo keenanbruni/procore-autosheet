@@ -201,14 +201,6 @@ exports.addProfileHandler = () => {
     })
 }
 
-// Resets add profile modal
-exports.resetModal = () => {
-    $('#select-project').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
-    $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true); 
-    $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
-    $("#select-company").val("1").trigger("change");
-}
-
 // Edit existing profile
 const editProfile = (selectionId) => {
     // Data imports & function definitions
@@ -502,13 +494,10 @@ const editProfile = (selectionId) => {
     })
 }
 
-// UUID generator
-const uuidv4 = () => {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
+// Checks for drawing updates
+$('#updates-button').unbind('click').on('click', function(){
+    ipcRenderer.send('critical-error')
+})
 
 // Deletes list item (don't worry, its being called)
 const deleteItem = (e, id) => {
@@ -517,7 +506,7 @@ const deleteItem = (e, id) => {
     procoreData.splice(indexOfId, 1)
 
     // Adds message if no drawing profiles exist
-    if (store.get('procoreData').length === 0) {
+    if (store.get(`${userId}.procoreData`).length === 0) {
         const listLinkItem = document.createElement('a'); listLinkItem.classList = "list-group-item list-group-item-action"; listLinkItem.setAttribute("id", 'no-drawings')
         const rowDiv = document.createElement('div'); rowDiv.classList = 'row align-items-center flex-nowrap no-gutters'
         const colDiv = document.createElement('div'); colDiv.classList = 'col text-nowrap mr-2'
@@ -556,6 +545,12 @@ const downloadDrawings = (e, id, accessToken) => {
                     drawingLoop()
                 }
             })
+            .fail(
+                function(data){
+                    console.log(data)
+                    $('#error-modal').modal()
+                }
+            )
     }
 
     // Checks to see if save location is set prior to download 
@@ -596,9 +591,24 @@ const downloadDrawing = (drawing, profile) => {
 // Prepopulates & opens modal upon item click (don't worry, its being called)
 const triggerModal = (e, id) => {
     const indexofId = procoreData.findIndex(i => i._id === id)
-    console.log(`Index of ID: ${indexofId}`)
     $('#drawings-modal').modal();
     editProfile(id)
+}
+
+// Resets add profile modal
+exports.resetModal = () => {
+    $('#select-project').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
+    $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true); 
+    $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
+    $("#select-company").val("1").trigger("change");
+}
+
+// UUID generator
+const uuidv4 = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
 }
 
 // Monitors storage for adds, deletes, and edits, and handles them
@@ -621,7 +631,7 @@ exports.startObserve = () => {
         rowDiv.appendChild(colDiv2); colDiv2.appendChild(deleteButton); deleteButton.appendChild(closeSpan)
 
         $('#drawing-list').append(listLinkItem); $('#no-drawings').remove()
-        store.set('procoreData', procoreData)
+        store.set(`${userId}.procoreData`, procoreData)
     })
 
      // Monitors procoreData array for deletes, then removes node and saves to store
@@ -629,7 +639,7 @@ exports.startObserve = () => {
         $('#drawing-list').contents().each((index, element) => {
             if (element.id && element.id === old_item._id) {
                 $(element).remove()
-                store.set('procoreData', procoreData)
+                store.set(`${userId}.procoreData`, procoreData)
             }
         })
         console.log(`ID OF DELETED ITEM: ${old_item._id}`)
@@ -644,7 +654,7 @@ exports.startObserve = () => {
                     $(this).find('.text-xs').text(`${new_item.selectedDrawingArea.name} - ${new_item.selectedDrawingDiscipline.name}`)
                 }
             })
-            store.set('procoreData', procoreData)
+            store.set(`${userId}.procoreData`, procoreData)
         }
     })
 }
@@ -655,29 +665,6 @@ exports.startMisc = () => {
     $('#logout-button').on('click', () => {
         ipcRenderer.send("logout")
     })
-
-    // User info
-    $.get(`https://api.procore.com/rest/v1.0/me`, { access_token:accessToken })
-    .done(function (response){
-        $('#user-name').text(response.login)
-        userId = response.id
-    })
-
-    // Populates existing profiles
-    if (store.get('procoreData').length === 0) {
-        const listLinkItem = document.createElement('a'); listLinkItem.classList = "list-group-item list-group-item-action"; listLinkItem.setAttribute("id", 'no-drawings')
-        const rowDiv = document.createElement('div'); rowDiv.classList = 'row align-items-center flex-nowrap no-gutters' 
-        const colDiv = document.createElement('div'); colDiv.classList = 'col text-nowrap mr-2'
-        const h6 = document.createElement('h6'); h6.classList = 'mb-0'; h6.innerHTML = `<strong>Click "Add Drawings" to get started!</strong>`
-        listLinkItem.appendChild(rowDiv); rowDiv.appendChild(colDiv); colDiv.appendChild(h6);
-        $('#drawing-list').append(listLinkItem)
-    }
-    else {
-        $('#no-drawings').remove()
-        store.get('procoreData').forEach(profile => {
-            procoreData.push(profile)
-        })
-    }
 
     // Clears modal formatting & select2 options upon modal exit, aborts all active AJAX calls
     $('#drawings-modal').on('hidden.bs.modal', function () {
@@ -696,7 +683,7 @@ exports.startMisc = () => {
         $(document).ajaxComplete(function(e, jqXHR, options) {
           xhrPool = $.grep(xhrPool, function(x){return x!=jqXHR});
         });
-        // I changed the name of the abort function here:
+        // Function
         window.abortAllMyAjaxRequests = function() {
           $.each(xhrPool, function(idx, jqXHR) {
             jqXHR.abort();

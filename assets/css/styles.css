@@ -1,0 +1,11 @@
+#loading {
+  background: url('../../assets/img/./avatars/loading-buffering.gif') center / 75px no-repeat;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 9999999;
+  background-color: #fff;
+}
+
