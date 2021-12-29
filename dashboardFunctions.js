@@ -11,8 +11,41 @@ exports.addProfileHandler = () => {
         id: uuidv4(),
         saveLocation: ""
     }
+    $('#modal-heading').text('Add Drawings')
+    
+    // Step 1 - Populates company list on "add drawings"
+    $("#drawings-modal-body").css('background',"url(assets/img/avatars/loading-buffering.gif) center / 75px no-repeat")
+    $('#select-company-div').css('opacity', '0');$('#select-project-div').css('opacity', '0');$('#select-drawing-area-div').css('opacity', '0');$('#select-drawing-discipline-div').css('opacity', '0')
+    $.get(`https://api.procore.com/rest/v1.0/companies`, { access_token: accessToken })
+        .done(function (data) {
+            let bucket = []
+            if (data != []) {
+                // Populate company selection interface
+                data.forEach(item => {
+                    if (item.id) {
+                        let object = {}
+                        object.id = item.id
+                        object.text = item.name
+                        bucket.push(object)
+                    }
+                })
+                $("#select-company").select2({
+                    data: bucket
+                })
+                $('#select-company-div').css('opacity', '1');$('#select-project-div').css('opacity', '1');$('#select-drawing-area-div').css('opacity', '1');$('#select-drawing-discipline-div').css('opacity', '1')
+                $("#drawings-modal-body").css('background','')
+            } 
+            else {
+                throw Error
+            }
+        })
+        .fail(function (data) {
+            if (data) {
+                console.log(`Failure Data: ${data}`)
+            }
+        })
 
-    // Step 1 - Saves selected company to dataBucket & populates project select
+    // Step 2 - Saves selected company to dataBucket & populates project select
     $('#select-company').unbind("select2:select").on('select2:select', function (e) {
         $('#select-project').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
         $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true); 
@@ -33,10 +66,12 @@ exports.addProfileHandler = () => {
                 if (data) {
                     // Populate project select
                     data.forEach(item => {
-                        let object = {}
-                        object.id = item.id
-                        object.text = item.name
-                        bucket.push(object)
+                        if (item.id) {
+                            let object = {}
+                            object.id = item.id
+                            object.text = item.name
+                            bucket.push(object)
+                        }
                     })
                 }
                 $('#select-project').html('').select2({ data: [{ id: '', text: '' }] });
@@ -53,7 +88,7 @@ exports.addProfileHandler = () => {
             })
     }
 
-    // Step 2 - Saves selected project to dataBucket & populates drawing area select
+    // Step 3 - Saves selected project to dataBucket & populates drawing area select
     $('#select-project').unbind("select2:select").on('select2:select', function (e) {
         $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
         $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true);
@@ -75,10 +110,12 @@ exports.addProfileHandler = () => {
                 if (data) {
                     // Populate select
                     data.forEach(item => {
-                        let object = {}
-                        object.id = item.id
-                        object.text = item.name
-                        bucket.push(object)
+                        if (item.id) {
+                            let object = {}
+                            object.id = item.id
+                            object.text = item.name
+                            bucket.push(object)
+                        }
                     })
                 }
                 $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] });
@@ -95,7 +132,7 @@ exports.addProfileHandler = () => {
             })
     }
 
-    // Step 3 - Saves selected drawing area to dataBucket & populates drawing discipline select
+    // Step 4 - Saves selected drawing area to dataBucket & populates drawing discipline select
     $('#select-drawing-area').unbind("select2:select").on('select2:select', function (e) {
         $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').prop("disabled", true);
         $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
@@ -137,7 +174,7 @@ exports.addProfileHandler = () => {
             })
     }
 
-    // Step 4 - Saves selected drawing discipline to dataBucket
+    // Step 5 - Saves selected drawing discipline to dataBucket
     $('#select-drawing-disciplines').unbind("select2:select").on('select2:select', function (e) {
         let data = e.params.data
         dataBucket.selectedDrawingDiscipline = { id: data.id, name: data.text }
@@ -145,7 +182,7 @@ exports.addProfileHandler = () => {
         $('#save-location').prop("disabled", false); $('#save-location').removeClass("disabled"); 
     })
 
-    // Step 5 - Set download location, enables save button
+    // Step 6 - Set download location, enables save button
     $('#save-location').unbind('click').on('click', () => {
         ipcRenderer.send('save-location')
         
@@ -156,11 +193,10 @@ exports.addProfileHandler = () => {
         }) 
     })
 
-    // Step 6 - Commits data upon close
+    // Step 7 - Commits data upon close
     $('#save-close-button').unbind('click').on('click', () => {
         if (dataBucket.selectedDrawingDiscipline){
             procoreData.push({ _id: dataBucket.id, selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline, saveLocation: dataBucket.saveLocation })
-            store.set('procoreData', procoreData)
         }
     })
 }
@@ -180,20 +216,41 @@ const editProfile = (selectionId) => {
     const selectedData = procoreData[indexOfId]
     let dataBucket = {}
 
-    // Step 1 - Saves edited company to dataBucket & populates project select
-    $('#select-company').unbind("select2:select").on('select2:select', function (e) {
-        $('#select-project').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
-        $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true);
-        $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled"); $('#save-location').prop('disabled', true); $('#save-location').addClass("disabled");
-        const data = e.params.data
-        dataBucket.selectedCompany = { id: data.id, name: data.text }
-        if (dataBucket.selectedCompany) {
-            editRenderProjectList(data, accessToken)
-        }
-        console.log(dataBucket.selectedCompany)
-    })
+    // Initial styling
+    $('#modal-heading').text("Loading...")
+    $("#drawings-modal-body").css('background',"url(assets/img/avatars/loading-buffering.gif) center / 75px no-repeat")
+    $('#select-company-div').css('opacity', '0');$('#select-project-div').css('opacity', '0');$('#select-drawing-area-div').css('opacity', '0');$('#select-drawing-discipline-div').css('opacity', '0')
+    $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true); $('#select-company').prop("disabled", true)
+    $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
+    
+    // Trigger population chain
+    $.get(`https://api.procore.com/rest/v1.0/companies`, { access_token: accessToken })
+        .done(function(data) {
+            let bucket = []
+            if (data) {
+                // Populate company selection interface
+                data.forEach(item => {
+                    if(item.id){
+                        let object = {}
+                        object.id = item.id
+                        object.text = item.name
+                        bucket.push(object)
+                    }
+                })
+                $("#select-company").select2({
+                    data: bucket
+                })
+                $("#select-company").select2("trigger", "select", {
+                    data: { id: selectedData.selectedCompany.id }
+                });
+                $('#select-company').prop("disabled", false)
 
-    // Initial render of prepopulated
+                // Populates project list based on selected company
+                renderProjectList(selectedData.selectedCompany,accessToken)
+            } 
+        })
+
+    // Initial render of prepopulated - renderDisciplines resets styling
     const renderProjectList = (company, accessToken) => {
         $("#loading-project-list").css("display", "inline");
         $.get("https://api.procore.com/rest/v1.0/projects", { access_token: accessToken, company_id: company.id })
@@ -202,10 +259,12 @@ const editProfile = (selectionId) => {
                 if (data) {
                     // Populate project select
                     data.forEach(item => {
-                        let object = {}
-                        object.id = item.id
-                        object.text = item.name
-                        bucket.push(object)
+                        if(item.id){
+                            let object = {}
+                            object.id = item.id
+                            object.text = item.name
+                            bucket.push(object)
+                        }
                     })
                 }
                 $('#select-project').html('').select2({ data: [{ id: '', text: '' }] });
@@ -234,10 +293,12 @@ const editProfile = (selectionId) => {
                 if (data) {
                     // Populate select
                     data.forEach(item => {
-                        let object = {}
-                        object.id = item.id
-                        object.text = item.name
-                        bucket.push(object)
+                        if (item.id){
+                            let object = {}
+                            object.id = item.id
+                            object.text = item.name
+                            bucket.push(object)
+                        }
                     })
                 }
                 $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] });
@@ -266,10 +327,12 @@ const editProfile = (selectionId) => {
                 if (data) {
                     // Populate select
                     data.forEach(item => {
-                        let object = {}
-                        object.id = item.id
-                        object.text = item.name
-                        bucket.push(object)
+                        if(item.id){
+                            let object = {}
+                            object.id = item.id
+                            object.text = item.name
+                            bucket.push(object)
+                        }
                     })
                 }
                 $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
@@ -279,8 +342,9 @@ const editProfile = (selectionId) => {
                 $("#select-drawing-disciplines").select2("trigger", "select", {
                     data: { id: selectedData.selectedDrawingDiscipline.id, name: selectedData.selectedDrawingDiscipline.name }
                 });
-                $('#select-drawing-disciplines').prop("disabled", false)
-                $("#loading-drawing-discipline-list").css("display", "none");
+                $('#select-drawing-disciplines').prop("disabled", false);$("#loading-drawing-discipline-list").css("display", "none");$('#modal-heading').text('Edit Drawing Profile'); 
+                $('#select-company-div').css('opacity', '1');$('#select-project-div').css('opacity', '1');$('#select-drawing-area-div').css('opacity', '1');$('#select-drawing-discipline-div').css('opacity', '1')
+                $("#drawings-modal-body").css('background','')
             })
             .fail(function (data) {
                 if (data) {
@@ -364,7 +428,6 @@ const editProfile = (selectionId) => {
                 })
                 $('#select-drawing-disciplines').prop("disabled", false)
                 $("#loading-drawing-discipline-list").css("display", "none");
-                $('#modal-heading').text('Edit Drawing Profile'); $('#modal-body-container').attr("style", "filter: blur(0px);")
             })
             .fail(function (data) {
                 if (data) {
@@ -417,6 +480,7 @@ const editProfile = (selectionId) => {
         dataBucket.selectedDrawingDiscipline = { id: data.id, name: $('#select-drawing-disciplines').select2('data')[0].text }
         console.log(dataBucket.selectedDrawingDiscipline)
         $('#save-close-button').prop("disabled", false); $('#save-close-button').removeClass("disabled"); $('#save-location').prop("disabled", false); $('#save-location').removeClass("disabled"); 
+        $('#modal-body-container').attr("style", "filter: blur(0px);")
     })
 
     // Step 5a (OPTIONAL) Set save location
@@ -434,44 +498,8 @@ const editProfile = (selectionId) => {
         if (dataBucket.selectedDrawingDiscipline) {
             const indexOfId = procoreData.findIndex(i => i._id === selectionId)
             procoreData[indexOfId] = { _id: selectionId, selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline, saveLocation: dataBucket.saveLocation }
-            store.set('procoreData', procoreData)
         }
     })
-
-    // Initial styling
-    $('#modal-heading').text("Loading...")
-    $('#modal-body-container').attr("style", "filter: blur(4px);")
-    $('#select-drawing-disciplines').prop("disabled", true); $('#select-drawing-area').prop("disabled", true); $('#select-project').prop("disabled", true); $('#select-company').prop("disabled", true)
-    $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
-    
-    // Trigger population chain
-    $.get(`https://api.procore.com/rest/v1.0/companies`, { access_token: accessToken })
-        .done(function(data) {
-            let bucket = []
-            if (data) {
-                // Populate company selection interface
-                data.forEach(item => {
-                    let object = {}
-                    object.id = item.id
-                    object.text = item.name
-                    bucket.push(object)
-                })
-
-                // const indexOfSelection = bucket.findIndex(i => i.id == selectedData.selectedCompany.id)
-                // console.log(`INDEX OF SELECTION: ${indexOfSelection}`)
-
-                $("#select-company").select2({
-                    data: bucket
-                })
-                $("#select-company").select2("trigger", "select", {
-                    data: { id: selectedData.selectedCompany.id }
-                });
-                $('#select-company').prop("disabled", false)
-
-                // Populates project list based on selected company
-                renderProjectList(selectedData.selectedCompany,accessToken)
-            } 
-        })
 }
 
 // UUID generator
@@ -514,24 +542,18 @@ const downloadDrawings = (e, id, accessToken) => {
                 if (data) {
                     const drawingBucket = data.filter(drawing => drawing.discipline === discipline)
                     procoreData[index].drawingData = drawingBucket
-                    const numberOfDrawings = drawingBucket.length; let count = 0; 
+                    const numberOfDrawings = drawingBucket.length; let count = 0;
 
-                    if(drawingBucket.length === 1){
-                        logger('only one drawing bro')
-                        downloadDrawing(drawingBucket[0], selectedProfileInfo)
-                    }
-                    else {
-                        const drawingLoop = async () => {
-                            for (const drawing of drawingBucket) {
-                                count ++; let percentage = count/numberOfDrawings * 100;
-                                $('#progress-modal').removeAttr("tabindex"); $('#progress-modal').modal();
-                                $('#progress-bar').css('width', `${percentage}%`).attr('aria-valuenow', percentage); $('#progress-bar').text(`${Math.round(percentage)}%`)
-                                const response = await downloadDrawing(drawing, selectedProfileInfo)
-                                console.log(response)
-                            }
+                    const drawingLoop = async () => {
+                        for (const drawing of drawingBucket) {
+                            count++; let percentage = count / numberOfDrawings * 100;
+                            $('#progress-modal').removeAttr("tabindex"); $('#progress-modal').modal();
+                            $('#progress-bar').css('width', `${percentage}%`).attr('aria-valuenow', percentage); $('#progress-bar').text(`${Math.round(percentage)}%`)
+                            const response = await downloadDrawing(drawing, selectedProfileInfo)
+                            console.log(response)
                         }
-                        drawingLoop()
                     }
+                    drawingLoop()
                 }
             })
     }
@@ -553,13 +575,14 @@ const downloadDrawings = (e, id, accessToken) => {
 
 }
 
-// Downloads drawings
+// Downloads drawings 
 const downloadDrawing = (drawing, profile) => {
     return new Promise((resolve, reject) =>{
+        const drawingTitle = drawing.title.replace(/[/\\?%*:|"<>]/g, '-')
         setTimeout(() => {
             ipcRenderer.send("download", {
                 url: drawing.current_revision.pdf_url,
-                options: {directory: profile.saveLocation, filename: `${drawing.number} - ${drawing.title}.pdf`},
+                options: {directory: profile.saveLocation, filename: `${drawing.number} - ${drawingTitle}.pdf`},
                 overwrite: true    
             })
         }, 150)
@@ -598,6 +621,7 @@ exports.startObserve = () => {
         rowDiv.appendChild(colDiv2); colDiv2.appendChild(deleteButton); deleteButton.appendChild(closeSpan)
 
         $('#drawing-list').append(listLinkItem); $('#no-drawings').remove()
+        store.set('procoreData', procoreData)
     })
 
      // Monitors procoreData array for deletes, then removes node and saves to store
@@ -620,6 +644,7 @@ exports.startObserve = () => {
                     $(this).find('.text-xs').text(`${new_item.selectedDrawingArea.name} - ${new_item.selectedDrawingDiscipline.name}`)
                 }
             })
+            store.set('procoreData', procoreData)
         }
     })
 }
@@ -635,6 +660,7 @@ exports.startMisc = () => {
     $.get(`https://api.procore.com/rest/v1.0/me`, { access_token:accessToken })
     .done(function (response){
         $('#user-name').text(response.login)
+        userId = response.id
     })
 
     // Populates existing profiles
@@ -652,6 +678,31 @@ exports.startMisc = () => {
             procoreData.push(profile)
         })
     }
+
+    // Clears modal formatting & select2 options upon modal exit, aborts all active AJAX calls
+    $('#drawings-modal').on('hidden.bs.modal', function () {
+        $('#select-company').html('').select2({ data: [{ id: '', text: '' }] });$('#select-project').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-area').html('').select2({ data: [{ id: '', text: '' }] }); $('#select-drawing-disciplines').html('').select2({ data: [{ id: '', text: '' }] });
+        $("#drawings-modal-body").removeAttr("style"); $("#modal-body-container").removeAttr("style")
+        $("#drawings-modal-body").css('background',"url('assets/img/avatars/loading-buffering.gif/') center / 75px no-repeat")
+        window.abortAllMyAjaxRequests()
+    });
+
+    // Aborts all active AJAX requests when called
+    (function($) {
+        var xhrPool = [];
+        $(document).ajaxSend(function(e, jqXHR, options){
+          xhrPool.push(jqXHR);
+        });
+        $(document).ajaxComplete(function(e, jqXHR, options) {
+          xhrPool = $.grep(xhrPool, function(x){return x!=jqXHR});
+        });
+        // I changed the name of the abort function here:
+        window.abortAllMyAjaxRequests = function() {
+          $.each(xhrPool, function(idx, jqXHR) {
+            jqXHR.abort();
+          });
+        };
+      })(jQuery);
 }
 
 // Terminal logger

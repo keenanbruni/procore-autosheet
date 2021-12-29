@@ -3,7 +3,7 @@ try {
   require('electron-reloader')(module)
 } catch (_) {}
 const Store = require('electron-store')
-const {download} = require("electron-dl");
+const {download} = require("electron-dl")
 const path = require('path')
 const axios = require('axios')
 require('dotenv').config()
@@ -108,7 +108,7 @@ function createWindow() {
     download(BrowserWindow.getFocusedWindow(), info.url, info.options)
       .then(dl => win.webContents.send("download complete", dl.getSavePath()));
   });
-
+  
   // Sets save location
   ipcMain.on('save-location', (e, arg) => {
     dialog.showOpenDialog({ properties: ['openDirectory'] })

@@ -91,11 +91,11 @@
                 <div class="modal-header">
                     <h4 class="modal-title" id="modal-heading">Add Drawings</h4><button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
                 </div>
-                <div class="modal-body" style="box-shadow: 0px 0px;opacity: 1;">
+                <div class="modal-body" id="drawings-modal-body">
                     <div class="container" id="modal-body-container">
                         <div class="row">
                             <div class="col">
-                                <div id="select-company-div" style="padding-bottom: 10px;">
+                                <div id="select-company-div" style="padding-bottom: 10px;opacity: 1;">
                                     <h6 style="padding-bottom: 0px;">Select Company</h6><select id="select-company" class="js-example-basic-single" style="width: 100%;padding-top: 0px;">
                                         <option value="" selected=""></option>
                                     </select>
@@ -105,13 +105,13 @@
                                         <option value="" selected=""></option>
                                     </select>
                                 </div>
-                                <div style="padding-bottom: 10px;">
+                                <div id="select-drawing-area-div" style="padding-bottom: 10px;opacity: 1;">
                                     <h6 style="padding-bottom: 0px;"><img id="loading-drawing-area-list" src="assets/img/avatars/loading-buffering.gif" style="width: 18px;margin-right: 5px; display:none;">Select Drawing Area</h6><select id="select-drawing-area" class="js-example-basic-single" style="width: 100%;padding-top: 0px;" disabled="">
                                         <option value="" selected=""></option>
                                     </select>
                                 </div>
-                                <div style="padding-bottom: 10px;">
-                                    <h6 style="padding-bottom: 0px;"><img id="loading-drawing-discipline-list" src="assets/img/avatars/loading-buffering.gif" style="width: 18px;margin-right: 5px; display:none;">Select Drawing Disciplines</h6><select id="select-drawing-disciplines" class="js-example-basic-single" style="width: 100%;padding-top: 0px;" disabled="">
+                                <div id="select-drawing-discipline-div" style="padding-bottom: 10px;">
+                                    <h6 style="padding-bottom: 0px;"><img id="loading-drawing-discipline-list" src="assets/img/avatars/loading-buffering.gif" style="width: 18px;margin-right: 5px; display:none;">Select Drawing Discipline</h6><select id="select-drawing-disciplines" class="js-example-basic-single" style="width: 100%;padding-top: 0px;" disabled="">
                                         <option value="" selected=""></option>
                                     </select>
                                 </div>

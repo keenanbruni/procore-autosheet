@@ -1,11 +1,11 @@
 // Initial declarations
 const Store = require('electron-store');
-const store = new Store({ watch: true, accessPropertiesByDotNotation: false });
+const store = new Store({ watch: true });
 let accessToken = store.get('access-token'); 
 const hideLoader = () => {
     $('#loading').hide()
 }
-let procoreData = [] // critical component - container for all user data
+let userId = ""; let procoreData = [] // critical components - container for all user data
 
 // App 
 $(() => {
@@ -20,10 +20,12 @@ $(() => {
             if (data != []) {
                 // Populate company selection interface
                 data.forEach(item => {
-                    let object = {}
-                    object.id = item.id
-                    object.text = item.name
-                    bucket.push(object)
+                    if (item.id) {
+                        let object = {}
+                        object.id = item.id
+                        object.text = item.name
+                        bucket.push(object)
+                    }
                 })
         
                 $("#select-company").select2({
