@@ -17,9 +17,6 @@ $(() => {
             $('#user-name').text(response.login)
 
             // Populate existing profiles
-            if (store.get(`${userId}.procoreData`)){
-                const indexCount = store.get(`${userId}.procoreData`).length
-            }
             if (!store.get(`${userId}.procoreData`) || store.get(`${userId}.procoreData`).length == 0) {
                 const listLinkItem = document.createElement('a'); listLinkItem.classList = "list-group-item list-group-item-action"; listLinkItem.setAttribute("id", 'no-drawings')
                 const rowDiv = document.createElement('div'); rowDiv.classList = 'row align-items-center flex-nowrap no-gutters' 

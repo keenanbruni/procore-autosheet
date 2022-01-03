@@ -495,8 +495,10 @@ const editProfile = (selectionId) => {
 }
 
 // Checks for drawing updates
+const checkUpdates = () => {
+}
 $('#updates-button').unbind('click').on('click', function(){
-    ipcRenderer.send('critical-error')
+    checkUpdates()
 })
 
 // Deletes list item (don't worry, its being called)
@@ -621,13 +623,14 @@ exports.startObserve = () => {
         const h6 = document.createElement('h6'); h6.classList = 'mb-0'; h6.innerHTML = `<strong>${new_item.selectedProject.name}</strong>`
         const spanText = document.createElement('span'); spanText.classList = "text-xs"; spanText.innerText = `${new_item.selectedDrawingArea.name} - ${new_item.selectedDrawingDiscipline.name}`
         const colDiv2 = document.createElement('div'); colDiv2.classList = "col-auto"
-        const downloadButton = document.createElement('button'); downloadButton.setAttribute("id", new_item._id); downloadButton.classList = "btn btn-primary"; $(downloadButton).css("background", "url(\"assets/img/avatars/download-2-128.png\") center / 15px no-repeat"); $(downloadButton).css("height", "22px"); $(downloadButton).css("border-style", "none"); downloadButton.setAttribute("onClick", 'downloadDrawings(event, this.id, accessToken)');
+        const downloadButton = document.createElement('button'); downloadButton.setAttribute("id", new_item._id); downloadButton.classList = "btn btn-primary"; $(downloadButton).css("background", "url(\"assets/img/avatars/download-2-128.png\") center / 15px no-repeat"); $(downloadButton).css("height", "22px"); $(downloadButton).css("border-style", "none"); downloadButton.setAttribute("onClick", 'downloadDrawings(event, this.id, accessToken)');downloadButton.setAttribute("data-toggle", "tooltip"); downloadButton.setAttribute("title", "Start Download"); 
         const colDiv3 = document.createElement('div'); colDiv3.classList = "col-xl-1 text-right"; $(colDiv3).css("padding-right", "15px")
         const deleteButton = document.createElement('button'); deleteButton.classList = "close"; deleteButton.setAttribute("id", new_item._id); deleteButton.setAttribute("onClick", 'deleteItem(event, this.id)');
         const closeSpan = document.createElement('span'); closeSpan.setAttribute("aria-hidden", "true"); closeSpan.innerText='x'
+        const alertImg = document.createElement('img'); alertImg.setAttribute("src", "assets/img/avatars/Alert_.png");alertImg.setAttribute("id", `alertImg_${new_item._id}`); alertImg.setAttribute("style", "height: 15px;padding-right: 15px; display: none;"); alertImg.setAttribute("data-toggle", "tooltip"); alertImg.setAttribute("title", "Drawing set not up to date"); alertImg.setAttribute("class", "alert-img");  
 
         listLinkItem.appendChild(rowDiv); rowDiv.appendChild(colDiv); colDiv.appendChild(h6); colDiv.appendChild(spanText); 
-        rowDiv.appendChild(colDiv3); colDiv3.appendChild(downloadButton)
+        rowDiv.appendChild(colDiv3); colDiv3.appendChild(alertImg); colDiv3.appendChild(downloadButton)
         rowDiv.appendChild(colDiv2); colDiv2.appendChild(deleteButton); deleteButton.appendChild(closeSpan)
 
         $('#drawing-list').append(listLinkItem); $('#no-drawings').remove()
@@ -690,6 +693,9 @@ exports.startMisc = () => {
           });
         };
       })(jQuery);
+
+      // Enables tooltips
+      $("body").tooltip({ selector: '[data-toggle=tooltip]' });
 }
 
 // Terminal logger
