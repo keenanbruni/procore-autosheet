@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Login - Brand</title>
+    <title>Autosheet - Login</title>
     <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
     <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
@@ -14,7 +14,6 @@
     <link rel="stylesheet" href="assets/css/iframe.css">
     <link rel="stylesheet" href="assets/css/Login-Form-Clean.css">
     <link rel="stylesheet" href="assets/css/Select2-JS-Plugin.css">
-    <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 
 <body class="bg-gradient-primary" style="background: linear-gradient(#ff5200, white), #ff5200;margin-top: 128px;">
@@ -24,7 +23,7 @@
                 <section class="login-clean" style="background: rgba(241,247,252,0);">
                     <form method="post">
                         <h1 class="text-center d-xl-flex justify-content-xl-center">Autosheet</h1>
-                        <div class="form-group"><a class="btn btn-primary btn-block" role="button" data-bss-hover-animate="pulse" href="https://login.procore.com/oauth/authorize?client_id=c54c7efb485fd98f2d4e144cdf42e98e40dbec9f673e4a0e88b5960fe78d4161&amp;amp;response_type=code&amp;amp;redirect_uri=https://login.procore.com" style="background: #ff6a49;">Log In with Procore</a></div>
+                        <div class="form-group"><a class="btn btn-primary btn-block" role="button" data-bss-hover-animate="pulse" id="login-button" href="https://login.procore.com/oauth/authorize?client_id=c54c7efb485fd98f2d4e144cdf42e98e40dbec9f673e4a0e88b5960fe78d4161&amp;amp;response_type=code&amp;amp;redirect_uri=https://login.procore.com" style="background: #ff6a49;">Log In with Procore</a></div>
                         <div class="modal fade" role="dialog" tabindex="-1" id="modal-1">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
@@ -50,12 +49,8 @@
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src="assets/bootstrap/js/bootstrap.min.js"></script>
     <script src="assets/js/bs-init.js"></script>
-    <script src="assets/js/Select2-JS-Plugin.js"></script>
-    <script src="assets/js/Select2-JS-Plugin-1.js"></script>
     <script src="assets/js/theme.js"></script>
-    <script src ="underscore-observe.js"></script>
-    <script src="dashboardFunctions.js"></script>
-    <script src="dashboard.js"></script>
+    <script src="login.js"></script>
     <script>if (window.module) module = window.module;</script>
 </body>
 

@@ -12,3 +12,18 @@
     <script src="dashboardFunctions.js"></script>
     <script src="dashboard.js"></script>
     <script>if (window.module) module = window.module;</script>
+
+LOGIN PAGE:
+    <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+    <script>var exports = { "__esModule": true };</script>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="assets/js/bs-init.js"></script>
+    <script src="assets/js/theme.js"></script>
+    <script src="login.js"></script>
+    <script>if (window.module) module = window.module;</script>
+
+    STYLES:
+    <link rel="stylesheet" href="assets/css/styles.css">

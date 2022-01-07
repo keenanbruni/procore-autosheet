@@ -1,16 +1,19 @@
 {
   "name": "procore-autosheet",
   "version": "1.0.0",
-  "description": "AH!",
+  "description": "Application that allows user to select drawing sets associated with their Procore account and download to their local drive.",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "dist": "electron-builder build"
   },
   "keywords": [],
   "author": "KB",
   "license": "ISC",
   "devDependencies": {
     "electron": "^13.3.0",
+    "electron-builder": "^22.14.5",
+    "electron-packager": "^15.4.0",
     "electron-reloader": "^1.2.1"
   },
   "dependencies": {
@@ -21,5 +24,17 @@
     "electron-store": "^7.0.3",
     "jquery": "^3.6.0",
     "lodash": "^4.17.21"
+  },
+  "build": {
+    "productName": "Autosheet",
+    "appId": "procore.autosheet",
+    "win": {
+      "target": [
+        "portable"
+      ]
+    },
+    "portable": {
+      "artifactName": "procore_autosheet.exe"
+    }
   }
 }
