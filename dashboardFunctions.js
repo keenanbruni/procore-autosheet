@@ -509,7 +509,7 @@ const editProfile = (selectionId) => {
     $('#save-close-button').unbind('click').on('click', () => {
         if (dataBucket.selectedDrawingDiscipline) {
             const indexOfId = procoreData.findIndex(i => i._id === selectionId)
-            procoreData[indexOfId] = { _id: selectionId, selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline, saveLocation: dataBucket.saveLocation, drawingData: dataBucket.drawingData}
+            procoreData[indexOfId] = { _id: selectionId, selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline, saveLocation: dataBucket.saveLocation ? dataBucket.saveLocation : selectedData.saveLocation, drawingData: dataBucket.drawingData}
         }
     })
 }
@@ -561,7 +561,9 @@ const downloadDrawings = (e, id, accessToken) => {
                             $('#progress-modal').removeAttr("tabindex"); $('#progress-modal').modal();
                             $('#progress-bar').css('width', `${percentage}%`).attr('aria-valuenow', percentage); $('#progress-bar').text(`${Math.round(percentage)}%`)
                             const response = await downloadDrawing(drawing, selectedProfileInfo)
-                            console.log(response)
+                            if (percentage == 100){
+                                setTimeout(() => {$('#progress-bar').text(`Done!`)}, 1000)
+                            }
                         }
                     }
                     drawingLoop()
@@ -715,7 +717,7 @@ exports.startMisc = () => {
       })(jQuery);
 
       // Enables tooltips
-      $("body").tooltip({ selector: '[data-toggle=tooltip]' });
+      $("body").tooltip({ selector: '[data-toggle=tooltip]', placement: "left" });
 }
 
 // Terminal logger
