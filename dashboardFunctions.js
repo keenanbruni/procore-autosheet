@@ -515,7 +515,30 @@ const editProfile = (selectionId) => {
 }
 
 // Checks for drawing updates
-const checkUpdates = () => {
+const checkUpdates = (oldData, newData) => {
+    let oldDrawingData = []; let newDrawingData = []
+
+    // Drawing data consolidation
+    procoreData.forEach(profile => {
+        oldDrawingData = profile.drawingData
+
+        // Fetch latest drawing data
+        $.get(`https://api.procore.com/rest/v1.1/drawing_areas/${profile.selectedDrawingArea.id}/drawings`, { drawing_area_id: profile.selectedDrawingArea.id, access_token: accessToken, project_id: profile.selectedProject.id })
+            .done(function (data) {
+                if (data) {
+                    newDrawingData = data.filter(drawing => drawing.discipline === profile.selectedDrawingDiscipline.name)
+                    console.log(newDrawingData); console.log(oldDrawingData)
+                    console.log(_.isEqual(oldDrawingData, newDrawingData))
+                }
+            })
+            .fail(function (data) {
+                console.log(data)
+                $('#error-modal').modal()
+            })
+    })
+
+    // $('#update-modal').modal()
+
 }
 $('#updates-button').unbind('click').on('click', function(){
     checkUpdates()
