@@ -517,6 +517,7 @@ const editProfile = (selectionId) => {
 // Checks for drawing updates
 const checkUpdates = (oldData, newData) => {
     let oldDrawingData = []; let newDrawingData = []
+    $("#updates-modal-body").css('background',"url(assets/img/avatars/loading-buffering.gif) center / 75px no-repeat"); $('#update-modal').modal(); 
 
     // Drawing data consolidation
     procoreData.forEach(profile => {
@@ -528,7 +529,12 @@ const checkUpdates = (oldData, newData) => {
                 if (data) {
                     newDrawingData = data.filter(drawing => drawing.discipline === profile.selectedDrawingDiscipline.name)
                     console.log(newDrawingData); console.log(oldDrawingData)
-                    console.log(_.isEqual(oldDrawingData, newDrawingData))
+                     
+                    // Compare arrays with lodash & proceed accordingly
+                    if (_.isEqual(oldDrawingData, newDrawingData) == false){
+                        $("#updates-modal-body").css('background','');
+                        $("#updates-text").append(`<p>${profile.selectedProject.name} - ${profile.selectedDrawingArea.name} - ${profile.selectedDrawingDiscipline.name} is out of date.</p><br>`)                    
+                    }
                 }
             })
             .fail(function (data) {
@@ -536,9 +542,6 @@ const checkUpdates = (oldData, newData) => {
                 $('#error-modal').modal()
             })
     })
-
-    // $('#update-modal').modal()
-
 }
 $('#updates-button').unbind('click').on('click', function(){
     checkUpdates()
