@@ -1,5 +1,6 @@
 const { ipcRenderer } = require("electron");
 const { data } = require("jquery");
+const { update } = require("lodash");
 
 // Handles add profile
 exports.addProfileHandler = () => {
@@ -515,12 +516,56 @@ const editProfile = (selectionId) => {
 }
 
 // Checks for drawing updates
-const checkUpdates = (oldData, newData) => {
-    let oldDrawingData = []; let newDrawingData = []
-    $("#updates-modal-body").css('background',"url(assets/img/avatars/loading-buffering.gif) center / 75px no-repeat"); $('#update-modal').modal(); 
+$('#updates-button').unbind('click').on('click', function(){
+    $("#updates-modal-body").css('background',"url(assets/img/avatars/loading-buffering.gif) center / 75px no-repeat"); $(`#updates-text-div`).empty(); $('#updates-text-div').css('opacity', '0')
+    checkUpdatess()
+})
 
-    // Drawing data consolidation
-    procoreData.forEach(profile => {
+const checkUpdatess = () => {
+    let oldDrawingData = []; let newDrawingData = []
+    $('#update-modal').modal(); 
+
+    // Check for updates 
+    const checker = new Promise((resolve, reject) => {
+        procoreData.forEach((profile, index, array) => {
+            oldDrawingData = profile.drawingData
+            $.get(`https://api.procore.com/rest/v1.1/drawing_areas/${profile.selectedDrawingArea.id}/drawings`, { drawing_area_id: profile.selectedDrawingArea.id, access_token: accessToken, project_id: profile.selectedProject.id })
+                .done((data) => {
+                    if (data) {
+                        // Initial declarations
+                        newDrawingData = data.filter(drawing => drawing.discipline === profile.selectedDrawingDiscipline.name)
+                        console.log(newDrawingData); console.log(oldDrawingData)
+
+                        // Conditional Logic
+                        if (_.isEqual(oldDrawingData, newDrawingData) == false){
+                            const updatesText = document.createElement('p');
+                            updatesText.innerHTML = `${profile.selectedProject.name} - ${profile.selectedDrawingArea.name} - ${profile.selectedDrawingDiscipline.name} is out of date.<br>`
+                            $("#updates-text-div").append(updatesText)
+                        } else {
+                            const updatesText = document.createElement('p');
+                            updatesText.innerHTML = `${profile.selectedProject.name} - ${profile.selectedDrawingArea.name} - ${profile.selectedDrawingDiscipline.name} is up to date!<br>` 
+                            $("#updates-text-div").append(updatesText)
+                        }
+
+                        // Finishing Up
+                        if (index === array.length -1) resolve()
+                    }
+                })
+        })
+    })
+
+    checker.then(() => {
+        console.log('all done!')
+        $("#updates-modal-body").css('background',""); $('#updates-text-div').css('opacity', '100'); $("#updates-title").text('Drawings')
+    })
+}
+
+const checkUpdates = () => {
+    let oldDrawingData = []; let newDrawingData = []
+    $("#updates-modal-body").css('background',"url(assets/img/avatars/loading-buffering.gif) center / 75px no-repeat"); 
+    $('#update-modal').modal(); 
+
+    for (const profile of procoreData){
         oldDrawingData = profile.drawingData
 
         // Fetch latest drawing data
@@ -529,11 +574,21 @@ const checkUpdates = (oldData, newData) => {
                 if (data) {
                     newDrawingData = data.filter(drawing => drawing.discipline === profile.selectedDrawingDiscipline.name)
                     console.log(newDrawingData); console.log(oldDrawingData)
-                     
-                    // Compare arrays with lodash & proceed accordingly
+                    const updatesTextId = uuidv4()
+
+                    // Initial text rendering  
+                    const starterMessage = document.createElement('span'); starterMessage.innerHTML = `Checking ${profile.selectedProject.name} - ${profile.selectedDrawingArea.name} - ${profile.selectedDrawingDiscipline.name} for updates...`; 
+                    $("#updates-text-div").append(starterMessage)             
+                    const updatesText = document.createElement('p');$(updatesText).attr("id", updatesTextId);$("#updates-text-div").append(updatesText)
+
+                     // Compare arrays with lodash & proceed accordingly
                     if (_.isEqual(oldDrawingData, newDrawingData) == false){
-                        $("#updates-modal-body").css('background','');
-                        $("#updates-text").append(`<p>${profile.selectedProject.name} - ${profile.selectedDrawingArea.name} - ${profile.selectedDrawingDiscipline.name} is out of date.</p><br>`)                    
+                        // $("#updates-modal-body").css('background','')
+                        $(`#${updatesTextId}`).html(''); $(starterMessage).remove()
+                        $(`#${updatesTextId}`).html(`${profile.selectedProject.name} - ${profile.selectedDrawingArea.name} - ${profile.selectedDrawingDiscipline.name} is out of date.<br>`)                    
+                    } else {
+                        $(`#${updatesTextId}`).html(''); $(starterMessage).remove()
+                        $(`#${updatesTextId}`).html(`${profile.selectedProject.name} - ${profile.selectedDrawingArea.name} - ${profile.selectedDrawingDiscipline.name} is up to date.<br>`)          
                     }
                 }
             })
@@ -541,11 +596,46 @@ const checkUpdates = (oldData, newData) => {
                 console.log(data)
                 $('#error-modal').modal()
             })
-    })
+
+            $("#updates-modal-body").css('background','')
+    } 
+
+    // Drawing data consolidation
+    // procoreData.forEach(profile => {
+    //     oldDrawingData = profile.drawingData
+
+    //     // Fetch latest drawing data
+    //     $.get(`https://api.procore.com/rest/v1.1/drawing_areas/${profile.selectedDrawingArea.id}/drawings`, { drawing_area_id: profile.selectedDrawingArea.id, access_token: accessToken, project_id: profile.selectedProject.id })
+    //         .done(function (data) {
+    //             if (data) {
+    //                 newDrawingData = data.filter(drawing => drawing.discipline === profile.selectedDrawingDiscipline.name)
+    //                 console.log(newDrawingData); console.log(oldDrawingData)
+    //                 const updatesTextId = uuidv4()
+
+    //                 // Initial text rendering  
+    //                 const starterMessage = document.createElement('span'); starterMessage.innerHTML = `Checking ${profile.selectedProject.name} - ${profile.selectedDrawingArea.name} - ${profile.selectedDrawingDiscipline.name} for updates...`; 
+    //                 $("#updates-text-div").append(starterMessage)             
+    //                 const updatesText = document.createElement('p');$(updatesText).attr("id", updatesTextId);$("#updates-text-div").append(updatesText)
+
+    //                  // Compare arrays with lodash & proceed accordingly
+    //                 if (_.isEqual(oldDrawingData, newDrawingData) == false){
+    //                     // $("#updates-modal-body").css('background','')
+    //                     $(`#${updatesTextId}`).html(''); $(starterMessage).remove()
+    //                     $(`#${updatesTextId}`).html(`${profile.selectedProject.name} - ${profile.selectedDrawingArea.name} - ${profile.selectedDrawingDiscipline.name} is out of date.<br>`)                    
+    //                 } else {
+    //                     $(`#${updatesTextId}`).html(''); $(starterMessage).remove()
+    //                     $(`#${updatesTextId}`).html(`${profile.selectedProject.name} - ${profile.selectedDrawingArea.name} - ${profile.selectedDrawingDiscipline.name} is up to date.<br>`)          
+    //                 }
+    //             }
+    //         })
+    //         .fail(function (data) {
+    //             console.log(data)
+    //             $('#error-modal').modal()
+    //         })
+    // })
+
 }
-$('#updates-button').unbind('click').on('click', function(){
-    checkUpdates()
-})
+
 
 // Deletes list item (don't worry, its being called)
 const deleteItem = (e, id) => {
