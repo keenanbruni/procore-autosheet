@@ -59,7 +59,6 @@ exports.addProfileHandler = () => {
         if (dataBucket.selectedCompany) {
             renderProjectList(data, accessToken)
         }
-        console.log(dataBucket.selectedCompany)
     })
 
     const renderProjectList = (company, accessToken) => {
@@ -101,7 +100,6 @@ exports.addProfileHandler = () => {
         $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
         let data = e.params.data
         dataBucket.selectedProject = { id: data.id, name: data.text }
-        console.log(dataBucket.selectedProject)
         if (dataBucket.selectedProject) {
             renderDrawingAreaList(data, accessToken)
 
@@ -146,7 +144,6 @@ exports.addProfileHandler = () => {
         $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled");
         let data = e.params.data
         dataBucket.selectedDrawingArea = { id: data.id, name: data.text }
-        console.log(dataBucket.selectedDrawingArea)
         if (dataBucket.selectedDrawingArea) {
             renderDrawingDisciplineList(dataBucket.selectedProject.id, accessToken)
         }
@@ -187,7 +184,7 @@ exports.addProfileHandler = () => {
     // Step 5 - Saves selected drawing discipline to dataBucket, downloads drawing info for checkUpdate 
     $('#select-drawing-disciplines').unbind("select2:select").on('select2:select', function (e) {
         let data = e.params.data
-        dataBucket.selectedDrawingDiscipline = { id: data.id, name: data.text }; console.log(dataBucket.selectedDrawingDiscipline)
+        dataBucket.selectedDrawingDiscipline = { id: data.id, name: data.text }; 
         $('#loading-save-location').css('display', 'inline')
         $.get(`https://api.procore.com/rest/v1.1/drawing_areas/${dataBucket.selectedDrawingArea.id}/drawings`, { drawing_area_id: dataBucket.selectedDrawingArea.id, access_token: accessToken, project_id: dataBucket.selectedProject.id })
             .done(function (data) {
@@ -472,7 +469,6 @@ const editProfile = (selectionId) => {
         if (dataBucket.selectedCompany) {
             editRenderProjectList(data, accessToken)
         }
-        console.log(dataBucket.selectedCompany)
     })
 
     // Step 2 - Saves edited project to dataBucket & populates drawing area select
@@ -482,7 +478,6 @@ const editProfile = (selectionId) => {
         $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled"); $('#save-location').prop("disabled", true);
         let data = e.params.data
         dataBucket.selectedProject = { id: data.id, name: $('#select-project').select2('data')[0].text }
-        console.log(dataBucket.selectedProject)
         if (dataBucket.selectedProject) {
             editRenderDrawingAreaList(data, accessToken)
         }
@@ -494,7 +489,6 @@ const editProfile = (selectionId) => {
         $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled"); $('#save-location').prop("disabled", true);
         let data = e.params.data
         dataBucket.selectedDrawingArea = { id: data.id, name: $('#select-drawing-area').select2('data')[0].text }
-        console.log(dataBucket.selectedDrawingArea)
         if (dataBucket.selectedDrawingArea) {
             editRenderDrawingDisciplineList(selectedData.selectedProject.id, accessToken)
         }
@@ -504,12 +498,10 @@ const editProfile = (selectionId) => {
     $('#select-drawing-disciplines').unbind("select2:select").on('select2:select', function (e) {
         let data = e.params.data
         dataBucket.selectedDrawingDiscipline = { id: data.id, name: $('#select-drawing-disciplines').select2('data')[0].text }
-        console.log(dataBucket.selectedDrawingDiscipline)
         $('#loading-save-location').css('display', 'inline'); $('#save-location').prop("disabled", true);
         $.get(`https://api.procore.com/rest/v1.1/drawing_areas/${dataBucket.selectedDrawingArea.id}/drawings`, { drawing_area_id: dataBucket.selectedDrawingArea.id, access_token: accessToken, project_id: dataBucket.selectedProject.id })
             .done(function (data) {
                 if (data) {
-                    console.log('Bajangus Pudding')
                     const bucket = data.filter(drawing => drawing.discipline === dataBucket.selectedDrawingDiscipline.name)
                     dataBucket.drawingData = bucket
                     $('#loading-save-location').css('display', 'none'); $('#save-location').prop("disabled", false); $('#save-location').removeClass("disabled"); $('#save-close-button').prop("disabled", false); $('#save-close-button').removeClass("disabled");
@@ -539,7 +531,7 @@ const editProfile = (selectionId) => {
 // Checks for drawing updates
 $('#updates-button').unbind('click').on('click', function () {
     $("#updates-modal-body").css('background', "url(assets/img/avatars/loading-buffering.gif) center / 75px no-repeat"); $(`#updates-text-div`).empty(); $('#updates-text-div').css('opacity', '0'); $("#updates-title").text('Scanning...')
-    let count = procoreData.length
+    let count = procoreData.length;
     $('#update-modal').modal();
 
     // Checker functionality
@@ -553,17 +545,27 @@ $('#updates-button').unbind('click').on('click', function () {
                         
                         // Conditional Logic
                         if (_.isEqual(profile.drawingData, newDrawingData) === false) {
+                            // Update isCurrent profile property
+                            const indexOfId = procoreData.findIndex(i => i._id === profile._id)
+                            procoreData[indexOfId].isCurrent = false
+
+                            // Render results
                             const updatesText = document.createElement('p');
                             updatesText.innerHTML = `${profile.selectedProject.name} - ${profile.selectedDrawingArea.name} - ${profile.selectedDrawingDiscipline.name} is out of date.<br>`
-                            $("#updates-text-div").append(updatesText)
+                            $("#updates-text-div").append(updatesText); 
                             count--
                             if (count == 0){
                                 resolve()
                             }
                         } else {
+                            // Update isCurrent profile property
+                            const indexOfId = procoreData.findIndex(i => i._id === profile._id)
+                            procoreData[indexOfId].isCurrent = true
+
+                            // Render results
                             const updatesText = document.createElement('p');
                             updatesText.innerHTML = `${profile.selectedProject.name} - ${profile.selectedDrawingArea.name} - ${profile.selectedDrawingDiscipline.name} is up to date.<br>`
-                            $("#updates-text-div").append(updatesText)
+                            $("#updates-text-div").append(updatesText); $(`#alertImg_${profile._id}`).css('display', 'none')
                             count--
                             if (count == 0){
                                 resolve()
@@ -582,6 +584,7 @@ $('#updates-button').unbind('click').on('click', function () {
             $("#updates-modal-body").css('background', "");
             $('#updates-text-div').css('opacity', '100');
             $("#updates-title").text('Scan Complete')     
+            checkCurrent()
         },
         (error) => {
             $('.modal').modal('hide');
@@ -641,7 +644,6 @@ const downloadDrawings = (e, id, accessToken) => {
             })
             .fail(
                 function(data){
-                    console.log(data)
                     $('.modal').modal('hide');
                     $('#error-modal').modal()
                 }
@@ -683,6 +685,15 @@ const downloadDrawing = (drawing, profile) => {
     })
 }
 
+// Checks if drawings are current and sets up download
+const checkCurrent = () => {
+    procoreData.forEach(profile => {
+        if (profile.isCurrent === false) {
+            $(`#alertImg_${profile._id}`).css('display', '')
+        }
+    })
+}
+
 // Prepopulates & opens modal upon item click (don't worry, its being called)
 const triggerModal = (e, id) => {
     const indexofId = procoreData.findIndex(i => i._id === id)
@@ -720,13 +731,14 @@ exports.startObserve = () => {
         const colDiv3 = document.createElement('div'); colDiv3.classList = "col-xl-1 text-right"; $(colDiv3).css("padding-right", "15px")
         const deleteButton = document.createElement('button'); deleteButton.classList = "close"; deleteButton.setAttribute("id", new_item._id); deleteButton.setAttribute("onClick", 'deleteItem(event, this.id)');
         const closeSpan = document.createElement('span'); closeSpan.setAttribute("aria-hidden", "true"); closeSpan.innerText='x'
-        const alertImg = document.createElement('img'); alertImg.setAttribute("src", "assets/img/avatars/Alert_.png");alertImg.setAttribute("id", `alertImg_${new_item._id}`); alertImg.setAttribute("style", "height: 15px;padding-right: 15px; display: none;"); alertImg.setAttribute("data-toggle", "tooltip"); alertImg.setAttribute("title", "Drawing set not up to date"); alertImg.setAttribute("class", "alert-img");  
+        const alertImg = document.createElement('img'); alertImg.setAttribute("src", "assets/img/avatars/Alert_.png");alertImg.setAttribute("id", `alertImg_${new_item._id}`); alertImg.setAttribute("style", "height: 15px;padding-right: 15px; display: none;"); alertImg.setAttribute("data-toggle", "tooltip"); alertImg.setAttribute("title", "Drawing profile out of date. Click to update."); alertImg.setAttribute("class", "alert-img");  
 
         listLinkItem.appendChild(rowDiv); rowDiv.appendChild(colDiv); colDiv.appendChild(h6); colDiv.appendChild(spanText); 
         rowDiv.appendChild(colDiv3); colDiv3.appendChild(alertImg); colDiv3.appendChild(downloadButton)
         rowDiv.appendChild(colDiv2); colDiv2.appendChild(deleteButton); deleteButton.appendChild(closeSpan)
 
         $('#drawing-list').append(listLinkItem); $('#no-drawings').remove()
+        if (new_item.isCurrent === false) { $(`#alertImg_${new_item._id}`).css('display', '') }
         store.set(`${userId}.procoreData`, procoreData)
     })
 
@@ -787,8 +799,8 @@ exports.startMisc = () => {
         };
       })(jQuery);
 
-      // Enables tooltips
-      $("body").tooltip({ selector: '[data-toggle=tooltip]', placement: "left" });
+    // Enables tooltips
+    $("body").tooltip({ selector: '[data-toggle=tooltip]', placement: "left" });
 }
 
 // Terminal logger
