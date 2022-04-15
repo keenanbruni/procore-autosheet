@@ -49,6 +49,7 @@ function createWindow() {
     }
   })
   win.setMenuBarVisibility(false)
+  // win.removeMenu() - enable for production
   win.loadFile('./login.html')
 
   // Intercepts redirect URI, extracts code, & sends to dashboard. 
@@ -103,7 +104,7 @@ function createWindow() {
           }
           )
           .catch(function (error) {
-            console.log(`AW CRAP! : ${error}`);
+            dialog.showMessageBox(win, { message:"There has been an error. Please restart the program and try again." });
           });
       })
     }
