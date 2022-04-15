@@ -528,11 +528,76 @@ const editProfile = (selectionId) => {
     })
 }
 
+// // Checks for drawing updates
+// $('#updates-button').unbind('click').on('click', function () {
+//     $("#updates-modal-body").css('background', "url(assets/img/avatars/loading-buffering.gif) center / 75px no-repeat"); $(`#updates-text-div`).empty(); $('#updates-text-div').css('opacity', '0'); $("#updates-title").text('Scanning...')
+//     let count = procoreData.length;
+//     $('#update-modal').modal();
+
+//     // Checker functionality
+//     let updatePromise = new Promise((resolve, reject) => {
+//         for (const profile of procoreData) {
+//             $.get(`https://api.procore.com/rest/v1.1/drawing_areas/${profile.selectedDrawingArea.id}/drawings`, { drawing_area_id: profile.selectedDrawingArea.id, access_token: accessToken, project_id: profile.selectedProject.id })
+//                 .done((data) => {
+//                     if (data) {
+//                         // Initial declarations
+//                         const newDrawingData = data.filter(drawing => drawing.discipline === profile.selectedDrawingDiscipline.name)
+                        
+//                         // Conditional Logic
+//                         if (_.isEqual(profile.drawingData, newDrawingData) === false) {
+//                             // Update isCurrent profile property
+//                             const indexOfId = procoreData.findIndex(i => i._id === profile._id)
+//                             procoreData[indexOfId].isCurrent = false
+
+//                             // Render results
+//                             const updatesText = document.createElement('p');
+//                             updatesText.innerHTML = `${profile.selectedProject.name} - ${profile.selectedDrawingArea.name} - ${profile.selectedDrawingDiscipline.name} is out of date.<br>`
+//                             $("#updates-text-div").append(updatesText); 
+//                             count--
+//                             if (count == 0){
+//                                 resolve()
+//                             }
+//                         } else {
+//                             // Update isCurrent profile property
+//                             const indexOfId = procoreData.findIndex(i => i._id === profile._id)
+//                             procoreData[indexOfId].isCurrent = true
+
+//                             // Render results
+//                             const updatesText = document.createElement('p');
+//                             updatesText.innerHTML = `${profile.selectedProject.name} - ${profile.selectedDrawingArea.name} - ${profile.selectedDrawingDiscipline.name} is up to date.<br>`
+//                             $("#updates-text-div").append(updatesText); $(`#alertImg_${profile._id}`).css('display', 'none')
+//                             count--
+//                             if (count == 0){
+//                                 resolve()
+//                             }
+//                         }
+//                     }
+//                 })
+//                 .fail((data) => {
+//                     reject('Unknown error occured.')
+//                 })
+//         }
+//     })
+
+//     updatePromise.then(
+//         (success) => {
+//             $("#updates-modal-body").css('background', "");
+//             $('#updates-text-div').css('opacity', '100');
+//             $("#updates-title").text('Scan Complete')     
+//             checkCurrent()
+//         },
+//         (error) => {
+//             $('.modal').modal('hide');
+//             $('#error-modal').modal()
+//         }
+//     )
+
+// })
+
 // Checks for drawing updates
 $('#updates-button').unbind('click').on('click', function () {
-    $("#updates-modal-body").css('background', "url(assets/img/avatars/loading-buffering.gif) center / 75px no-repeat"); $(`#updates-text-div`).empty(); $('#updates-text-div').css('opacity', '0'); $("#updates-title").text('Scanning...')
+    $('#updates-spinner').css('display', 'inline'); $('#updates-button').addClass('disabled'); 
     let count = procoreData.length;
-    $('#update-modal').modal();
 
     // Checker functionality
     let updatePromise = new Promise((resolve, reject) => {
@@ -549,10 +614,6 @@ $('#updates-button').unbind('click').on('click', function () {
                             const indexOfId = procoreData.findIndex(i => i._id === profile._id)
                             procoreData[indexOfId].isCurrent = false
 
-                            // Render results
-                            const updatesText = document.createElement('p');
-                            updatesText.innerHTML = `${profile.selectedProject.name} - ${profile.selectedDrawingArea.name} - ${profile.selectedDrawingDiscipline.name} is out of date.<br>`
-                            $("#updates-text-div").append(updatesText); 
                             count--
                             if (count == 0){
                                 resolve()
@@ -562,10 +623,7 @@ $('#updates-button').unbind('click').on('click', function () {
                             const indexOfId = procoreData.findIndex(i => i._id === profile._id)
                             procoreData[indexOfId].isCurrent = true
 
-                            // Render results
-                            const updatesText = document.createElement('p');
-                            updatesText.innerHTML = `${profile.selectedProject.name} - ${profile.selectedDrawingArea.name} - ${profile.selectedDrawingDiscipline.name} is up to date.<br>`
-                            $("#updates-text-div").append(updatesText); $(`#alertImg_${profile._id}`).css('display', 'none')
+                            $(`#alertImg_${profile._id}`).css('display', 'none')
                             count--
                             if (count == 0){
                                 resolve()
@@ -581,9 +639,9 @@ $('#updates-button').unbind('click').on('click', function () {
 
     updatePromise.then(
         (success) => {
-            $("#updates-modal-body").css('background', "");
-            $('#updates-text-div').css('opacity', '100');
-            $("#updates-title").text('Scan Complete')     
+            $('#updates-spinner').css('display', 'none')
+            $("#scan-results").css('display', "inline"); $("#scan-results").fadeOut(5000)
+            $('#updates-button').removeClass('disabled'); 
             checkCurrent()
         },
         (error) => {

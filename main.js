@@ -104,7 +104,7 @@ function createWindow() {
           }
           )
           .catch(function (error) {
-            console.log(`AW CRAP! : ${error}`);
+            dialog.showMessageBox(win, { message:"There has been an error. Please restart the program and try again." });
           });
       })
     }
