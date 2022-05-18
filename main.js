@@ -73,8 +73,10 @@ function createWindow() {
           win.loadFile('./dashboard.html')
         })
         .catch(function (error) {
-          dialog.showMessageBox(win, { message:"There has been an error. Please restart the program and try again." })
-          console.log(`AW CRAP! : ${error}`);
+          if (error) {
+            dialog.showMessageBox(win, { message:"There has been a login error. Please restart the program and try again." })
+            console.log(`AW CRAP! : ${error}`);
+          }
         });
 
       // Upsize window
@@ -85,7 +87,7 @@ function createWindow() {
 
       // Critical error alert
       ipcMain.on('critical-error', (e, arg) => {
-        dialog.showMessageBox(win, { message:"There has been an error. Please restart the program and try again." })
+        dialog.showMessageBox(win, { message:"There has been a critical error. Please restart the program and try again." })
       })
 
       // Logout redirect
@@ -104,7 +106,7 @@ function createWindow() {
           }
           )
           .catch(function (error) {
-            dialog.showMessageBox(win, { message:"There has been an error. Please restart the program and try again." });
+            dialog.showMessageBox(win, { message:"There has been a logout error. Please restart the program and try again." });
           });
       })
     }

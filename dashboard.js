@@ -10,7 +10,14 @@ $(() => {
     $('#drawings-modal').removeAttr("tabindex")
 
     // Initializes app
-    $.get(`https://api.procore.com/rest/v1.0/me`, { access_token: accessToken })
+    $.ajax({
+        url: `https://api.procore.com/rest/v1.0/me`,
+        type: 'GET',
+        contentType: 'application/json',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`
+        }
+    })
         .done(function (response) {
             userId = response.id
             $('#loading').hide()
@@ -19,7 +26,7 @@ $(() => {
             // Populate existing profiles
             if (!store.get(`${userId}.procoreData`) || store.get(`${userId}.procoreData`).length == 0) {
                 const listLinkItem = document.createElement('a'); listLinkItem.classList = "list-group-item list-group-item-action"; listLinkItem.setAttribute("id", 'no-drawings')
-                const rowDiv = document.createElement('div'); rowDiv.classList = 'row align-items-center flex-nowrap no-gutters' 
+                const rowDiv = document.createElement('div'); rowDiv.classList = 'row align-items-center flex-nowrap no-gutters'
                 const colDiv = document.createElement('div'); colDiv.classList = 'col text-nowrap mr-2'
                 const h6 = document.createElement('h6'); h6.classList = 'mb-0'; h6.innerHTML = `<strong>Click "Add Drawings" to get started!</strong>`
                 listLinkItem.appendChild(rowDiv); rowDiv.appendChild(colDiv); colDiv.appendChild(h6);
@@ -34,7 +41,10 @@ $(() => {
 
         })
         .fail(function (response) {
-            ipcRenderer.send('critical-error')
+            if (response) {
+                console.log(response.responseText)
+                ipcRenderer.send('critical-error')
+            }
         })
 
     // Add Profile Handler
