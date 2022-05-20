@@ -18,14 +18,7 @@ exports.addProfileHandler = () => {
     // Step 1 - Populates company list on "add drawings"
     $("#drawings-modal-body").css('background', "url(assets/img/avatars/loading-buffering.gif) center / 75px no-repeat"); $('#save-location').prop("disabled", true)
     $('#select-company-div').css('opacity', '0'); $('#select-project-div').css('opacity', '0'); $('#select-drawing-area-div').css('opacity', '0'); $('#select-drawing-discipline-div').css('opacity', '0')
-    $.ajax({
-        url: `https://api.procore.com/rest/v1.0/companies`,
-        type: 'GET',
-        contentType: 'application/json',
-        headers: {
-            'Authorization': `Bearer ${accessToken}`
-        }
-    })
+    $.get(`https://api.procore.com/rest/v1.0/companies`)
         .done(function (data) {
             let bucket = []
             if (data != []) {
@@ -70,15 +63,7 @@ exports.addProfileHandler = () => {
 
     const renderProjectList = (company, accessToken) => {
         $("#loading-project-list").css("display", "inline");
-        $.ajax({
-            url: `https://api.procore.com/rest/v1.0/projects`,
-            type: 'GET',
-            data: jQuery.param({ company_id: company.id }),
-            contentType: 'application/json',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        })
+        $.get("https://api.procore.com/rest/v1.0/projects", { company_id: company.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -123,15 +108,7 @@ exports.addProfileHandler = () => {
 
     const renderDrawingAreaList = (data, accessToken) => {
         $("#loading-drawing-area-list").css("display", "inline");
-        $.ajax({
-            url: `https://api.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`,
-            type: 'GET',
-            data: jQuery.param({ project_id: data.id }),
-            contentType: 'application/json',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { project_id: data.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -174,15 +151,7 @@ exports.addProfileHandler = () => {
 
     const renderDrawingDisciplineList = (data, accessToken) => {
         $("#loading-drawing-discipline-list").css("display", "inline");           
-        $.ajax({
-            url: `https://api.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`,
-            type: 'GET',
-            data: jQuery.param({ project_id: data }),
-            contentType: 'application/json',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { project_id: data })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -217,15 +186,7 @@ exports.addProfileHandler = () => {
         let data = e.params.data
         dataBucket.selectedDrawingDiscipline = { id: data.id, name: data.text };
         $('#loading-save-location').css('display', 'inline')
-        $.ajax({
-            url: `https://api.procore.com/rest/v1.1/drawing_areas/${dataBucket.selectedDrawingArea.id}/drawings`,
-            type: 'GET',
-            data: jQuery.param({ drawing_area_id: dataBucket.selectedDrawingArea.id, project_id: dataBucket.selectedProject.id }),
-            contentType: 'application/json',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        })
+        $.get(`https://api.procore.com/rest/v1.1/drawing_areas/${dataBucket.selectedDrawingArea.id}/drawings`, { drawing_area_id: dataBucket.selectedDrawingArea.id, project_id: dataBucket.selectedProject.id })
             .done(function (data) {
                 if (data) {
                     const bucket = data.filter(drawing => drawing.discipline === dataBucket.selectedDrawingDiscipline.name)
@@ -274,14 +235,7 @@ const editProfile = (selectionId) => {
     $('#save-close-button').prop("disabled", true); $('#save-close-button').addClass("disabled"); $('#save-location').prop("disabled", true);
 
     // Trigger population chain
-    $.ajax({
-        url: `https://api.procore.com/rest/v1.0/companies`,
-        type: 'GET',
-        contentType: 'application/json',
-        headers: {
-            'Authorization': `Bearer ${accessToken}`
-        }
-    })
+    $.get(`https://api.procore.com/rest/v1.0/companies`)
         .done(function (data) {
             let bucket = []
             if (data) {
@@ -310,15 +264,7 @@ const editProfile = (selectionId) => {
     // Initial render of prepopulated - renderDisciplines resets styling
     const renderProjectList = (company, accessToken) => {
         $("#loading-project-list").css("display", "inline");
-        $.ajax({
-            url: `https://api.procore.com/rest/v1.0/projects`,
-            type: 'GET',
-            data: jQuery.param({ company_id: company.id }),
-            contentType: 'application/json',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        })
+        $.get("https://api.procore.com/rest/v1.0/projects", { company_id: company.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -354,15 +300,7 @@ const editProfile = (selectionId) => {
     }
     const renderDrawingArea = (data, accessToken) => {
         $("#loading-drawing-area-list").css("display", "inline");
-        $.ajax({
-            url: `https://api.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`,
-            type: 'GET',
-            data: jQuery.param({ project_id: data.id }),
-            contentType: 'application/json',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { project_id: data.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -398,15 +336,7 @@ const editProfile = (selectionId) => {
     }
     const renderDisciplines = (data, accessToken) => {
         $("#loading-drawing-discipline-list").css("display", "inline");
-        $.ajax({
-            url: `https://api.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`,
-            type: 'GET',
-            data: jQuery.param({ project_id: data }),
-            contentType: 'application/json',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { project_id: data })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -443,15 +373,7 @@ const editProfile = (selectionId) => {
     // Edit handlers
     const editRenderProjectList = (company, accessToken) => {
         $("#loading-project-list").css("display", "inline");
-        $.ajax({
-            url: `https://api.procore.com/rest/v1.0/projects`,
-            type: 'GET',
-            data: jQuery.param({ company_id: company.id }),
-            contentType: 'application/json',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        })
+        $.get("https://api.procore.com/rest/v1.0/projects", { company_id: company.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -480,15 +402,7 @@ const editProfile = (selectionId) => {
     }
     const editRenderDrawingAreaList = (data, accessToken) => {
         $("#loading-drawing-area-list").css("display", "inline");
-        $.ajax({
-            url: `https://api.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`,
-            type: 'GET',
-            data: jQuery.param({ project_id: data.id }),
-            contentType: 'application/json',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data.id}/drawing_areas`, { project_id: data.id })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -517,15 +431,7 @@ const editProfile = (selectionId) => {
     }
     const editRenderDrawingDisciplineList = (data, accessToken) => {
         $("#loading-drawing-discipline-list").css("display", "inline");
-        $.ajax({
-            url: `https://api.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`,
-            type: 'GET',
-            data: jQuery.param({project_id: data}),
-            contentType: 'application/json',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        })
+        $.get(`https://api.procore.com/rest/v1.1/projects/${data}/drawing_disciplines`, { project_id: data })
             .done(function (data) {
                 let bucket = []
                 if (data) {
@@ -593,15 +499,7 @@ const editProfile = (selectionId) => {
         let data = e.params.data
         dataBucket.selectedDrawingDiscipline = { id: data.id, name: $('#select-drawing-disciplines').select2('data')[0].text }
         $('#loading-save-location').css('display', 'inline'); $('#save-location').prop("disabled", true);
-        $.ajax({
-            url: `https://api.procore.com/rest/v1.1/drawing_areas/${dataBucket.selectedDrawingArea.id}/drawings`,
-            type: 'GET',
-            data: jQuery.param({ drawing_area_id: dataBucket.selectedDrawingArea.id, project_id: dataBucket.selectedProject.id }),
-            contentType: 'application/json',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        })
+        $.get(`https://api.procore.com/rest/v1.1/drawing_areas/${dataBucket.selectedDrawingArea.id}/drawings`, { drawing_area_id: dataBucket.selectedDrawingArea.id, project_id: dataBucket.selectedProject.id })
             .done(function (data) {
                 if (data) {
                     const bucket = data.filter(drawing => drawing.discipline === dataBucket.selectedDrawingDiscipline.name)
@@ -632,21 +530,13 @@ const editProfile = (selectionId) => {
 
 // Checks for drawing updates
 $('#updates-button').unbind('click').on('click', function () {
-    $('#updates-spinner').css('display', 'inline'); $('#updates-button').addClass('disabled'); $("#scan-results").text('Scan Complete')
+    $('#updates-spinner').css('display', 'inline'); $('#updates-button').addClass('disabled'); $("#scan-results").text('Scan Complete');
     let count = procoreData.length;
 
     // Checker functionality
     let updatePromise = new Promise((resolve, reject) => {
         for (const profile of procoreData) {
-            $.ajax({
-                url: `https://api.procore.com/rest/v1.1/drawing_areas/${profile.selectedDrawingArea.id}/drawings`,
-                type: 'GET',
-                data: jQuery.param({ drawing_area_id: profile.selectedDrawingArea.id, project_id: profile.selectedProject.id }),
-                contentType: 'application/json',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            })
+            $.get(`https://api.procore.com/rest/v1.1/drawing_areas/${profile.selectedDrawingArea.id}/drawings`, { drawing_area_id: profile.selectedDrawingArea.id, project_id: profile.selectedProject.id })
                 .done((data) => {
                     if (data) {
                         // Initial declarations
@@ -723,15 +613,7 @@ const downloadDrawings = (e, id, accessToken) => {
     const discipline = selectedProfileInfo.selectedDrawingDiscipline.name
 
     const proceedDownload = () => {
-        $.ajax({
-            url: `https://api.procore.com/rest/v1.1/drawing_areas/${drawingAreaId}/drawings`,
-            type: 'GET',
-            data: jQuery.param({ drawing_area_id: drawingAreaId, project_id: projectId }),
-            contentType: 'application/json',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        })
+        $.get(`https://api.procore.com/rest/v1.1/drawing_areas/${drawingAreaId}/drawings`, { drawing_area_id: drawingAreaId, project_id: projectId })
             .done(function (data) {
                 if (data) {
                     const drawingBucket = data.filter(drawing => drawing.discipline === discipline)
@@ -798,6 +680,7 @@ const downloadDrawing = (drawing, profile) => {
 // Checks if drawings are current and sets up download
 const checkCurrent = () => {
     let count = procoreData.length; let currentCount = 0
+
     let checkerPromise = new Promise((resolve, reject) => {
         procoreData.forEach(profile => {
             if (profile.isCurrent === false) {
@@ -864,7 +747,7 @@ exports.startObserve = () => {
         const colDiv3 = document.createElement('div'); colDiv3.classList = "col-xl-1 text-right"; $(colDiv3).css("padding-right", "15px")
         const deleteButton = document.createElement('button'); deleteButton.classList = "close"; deleteButton.setAttribute("id", new_item._id); deleteButton.setAttribute("onClick", 'deleteItem(event, this.id)');
         const closeSpan = document.createElement('span'); closeSpan.setAttribute("aria-hidden", "true"); closeSpan.innerText='x'
-        const alertImg = document.createElement('img'); alertImg.setAttribute("src", "assets/img/avatars/Alert_.png");alertImg.setAttribute("id", `alertImg_${new_item._id}`); alertImg.setAttribute("style", "height: 15px;padding-right: 15px; display: none;"); alertImg.setAttribute("data-toggle", "tooltip"); alertImg.setAttribute("title", "Drawing profile out of date. Click to update."); alertImg.setAttribute("class", "alert-img");  
+        const alertImg = document.createElement('img'); alertImg.setAttribute("src", "assets/img/avatars/Alert_.png");alertImg.setAttribute("id", `alertImg_${new_item._id}`); alertImg.setAttribute("style", "height: 15px;padding-right: 15px; display: none;"); alertImg.setAttribute("data-toggle", "tooltip"); alertImg.setAttribute("title", "Drawing set out of date. Click to update."); alertImg.setAttribute("class", "alert-img");  
 
         listLinkItem.appendChild(rowDiv); rowDiv.appendChild(colDiv); colDiv.appendChild(h6); colDiv.appendChild(spanText); 
         rowDiv.appendChild(colDiv3); colDiv3.appendChild(alertImg); colDiv3.appendChild(downloadButton)
@@ -934,6 +817,14 @@ exports.startMisc = () => {
 
     // Enables tooltips
     $("body").tooltip({ selector: '[data-toggle=tooltip]', placement: "left" });
+
+    // jQuery AJAX settings
+    $.ajaxSetup({
+        contentType: 'application/json',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`
+        }
+    });
 }
 
 // Terminal logger
