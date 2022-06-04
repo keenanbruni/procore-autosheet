@@ -524,6 +524,7 @@ const editProfile = (selectionId) => {
         if (dataBucket.selectedDrawingDiscipline) {
             const indexOfId = procoreData.findIndex(i => i._id === selectionId)
             procoreData[indexOfId] = { _id: selectionId, selectedCompany: dataBucket.selectedCompany, selectedProject: dataBucket.selectedProject, selectedDrawingArea: dataBucket.selectedDrawingArea, selectedDrawingDiscipline: dataBucket.selectedDrawingDiscipline, saveLocation: dataBucket.saveLocation ? dataBucket.saveLocation : selectedData.saveLocation, drawingData: dataBucket.drawingData }
+            $(`#alertImg_${selectionId}`).css('display', 'none')
         }
     })
 }
@@ -703,7 +704,7 @@ const checkCurrent = () => {
     checkerPromise.then(
         (success) => {
             if (currentCount == 0){
-                ("#scan-results").text('All drawings up to date!');("#scan-results").css('display', "inline"); $("#scan-results").fadeOut(5000)
+                $("#scan-results").text('All drawings up to date!');("#scan-results").css('display', "inline"); $("#scan-results").fadeOut(5000)
             }    
         }
     )
@@ -783,7 +784,7 @@ exports.startObserve = () => {
     })
 }
 
-// Misc event handlers
+// Misc startup functions
 exports.startMisc = () => {
     // Logout
     $('#logout-button').on('click', () => {
