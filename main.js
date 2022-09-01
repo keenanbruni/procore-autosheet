@@ -3,9 +3,11 @@ try {
   require('electron-reloader')(module)
 } catch (_) {}
 const Store = require('electron-store')
+const {client} = require('./codes')
 const {download} = require("electron-dl")
 const path = require('path')
 const axios = require('axios')
+const codes = require('./codes')
 require('dotenv').config()
 
 // Initial declarations
@@ -14,10 +16,10 @@ let accessCode = ""
 let refreshToken = ""
 let authCodeData = {
   "grant_type": "authorization_code",
-  "client_id": "c54c7efb485fd98f2d4e144cdf42e98e40dbec9f673e4a0e88b5960fe78d4161",
-  "client_secret": "0599d47b0df5b56991e8d7ad14152511711b22c8ac68a37d885555a7a0f95f59",
+  "client_id": codes.client_id,
+  "client_secret": codes.client_secret,
   "code": accessCode,
-  "redirect_uri": "https://login.procore.com/",
+  "redirect_uri": "urn:ietf:wg:oauth:2.0:oob",
   "refresh_token": refreshToken
 }
 
@@ -42,26 +44,28 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 720,
     height: 720,
+    icon: path.join(__dirname, './resources/icons/icon_1024.ico'),
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+      devTools: true
     }
   })
   win.setMenuBarVisibility(false)
-  // win.removeMenu() - enable for production
+  // win.removeMenu()
   win.loadFile('./login.html')
 
   // Intercepts redirect URI, extracts code, & sends to dashboard. 
   win.webContents.on('will-redirect', (e, url) => {
-    if (url.indexOf("code=") != -1) {
+    if (url.indexOf("login.procore.com/oauth/authorize/") != -1) {
       e.preventDefault()
-      accessCode = url.split('=')[1]
+      accessCode = url.split('/')[5]
       authCodeData.code = accessCode
-      console.log(`ACCESS CODE: ${url.split('=')[1]}`)
+      console.log(`ACCESS CODE: ${accessCode}`)
 
       // Gets Auth & Redirect Token 
-      axios.post('https://login.procore.com/oauth/token', authCodeData)
+      axios.post('https://api.procore.com/oauth/token', authCodeData)
         .then(function (response) {
           authCodeData.refreshToken = response.data.refresh_token
           console.log(`ACCESS TOKEN: ${response.data.access_token}`)
@@ -75,7 +79,7 @@ function createWindow() {
         .catch(function (error) {
           if (error) {
             dialog.showMessageBox(win, { message:"There has been a login error. Please restart the program and try again." })
-            console.log(`AW CRAP! : ${error}`);
+            console.log(`ERROR : ${error}`);
           }
         });
 
@@ -83,7 +87,8 @@ function createWindow() {
       let width = 1200;
       let height = 800;
       let animate = true;
-      win.setSize(width, height, animate);
+      win.maximize()
+      // win.setSize(width, height, animate);
 
       // Critical error alert
       ipcMain.on('critical-error', (e, arg) => {
@@ -126,6 +131,12 @@ function createWindow() {
       })
   })
 }
+
+// Catches unhandled rejections
+process.on('unhandledRejection', error => {
+  // Will print "unhandledRejection err is not defined"
+  console.log('unhandledRejection', error.message);
+});
 
 // Terminal Logger
 ipcMain.on('logger', (event, arg) => {

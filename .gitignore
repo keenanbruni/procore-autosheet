@@ -2,3 +2,7 @@ node_modules
 .vs
 .env
 dist
+code-signing
+measuretwyce.pfx
+release
+codes.js

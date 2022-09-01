@@ -1,7 +1,7 @@
 {
   "name": "procore-autosheet",
   "version": "1.0.0",
-  "description": "Application that allows user to select drawing sets associated with their Procore account and download to their local drive.",
+  "description": "Keeps local PDF drawings up to date with Procore.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -27,11 +27,28 @@
   },
   "build": {
     "productName": "Autosheet",
-    "appId": "procore.autosheet",
+    "appId": "autosheet",
+    "asar": false,
     "win": {
       "target": [
         "appx"
-      ]
+      ],
+      "icon": "resources/icons/icon.png"
+    },
+    "appx" : {
+      "identityName": "36276Measuretwyce.autosheet",
+      "applicationId": "autosheet",
+      "backgroundColor" : "#ffffff",
+      "displayName": "Autosheet",
+      "languages": [
+        "en-US"
+      ],
+      "publisherDisplayName": "Measuretwyce",
+      "publisher": "CN=01F809D4-C91A-4855-86E6-5537FA16589B"
+    },
+    "directories": {
+      "buildResources": "resources",
+      "output": "release"
     }
   }
 }
